@@ -1,0 +1,28 @@
+
+<form>
+	<p><label>Text: <input name="text" required maxlength="1" list="list"></label>
+		<datalist id="list">
+			<select name="text">
+				<option>A
+				<option>B
+				<option>C
+				<option>D
+			</select>
+		</datalist>
+	<p><label>Number: <input type="number" required></label>
+	<p><label>Number <small>(100 &lt; value &lt; 1000)</small>: 
+		<input type="number" required min="100" max="1000"></label>
+	<p><label>Range <small>(1 to 5)</small>: 
+		<input type="range" required min="1" max="5"></label>
+	<p><label>Email: <input type="email" required></label>
+	<p><label>Url: <input type="url" required></label>
+	<p><label>Tel: <input type="tel" required pattern="[0-9]{6,}"></label>
+	<p><label>Password: <input type="password" required></label>
+	<p>
+		<label><input type="radio" required name="select1" value="A">[A]</label>
+		<label><input type="radio" required name="select1" value="B">[B]</label>
+		<label><input type="radio" required name="select1" value="C">[C]</label>
+	<p>
+	
+	<p><input type="submit">
+</form>
