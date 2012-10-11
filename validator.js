@@ -1,6 +1,6 @@
 /*! Simple Validator
  * @author: sofish https://github.com/sofish
- * @copyright: MIT license, Baixing Inc. */
+ * @copyright: MIT license */
 
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
