@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1,requiresActiveX=true"/>
+    <title>validate.js</title>
+    <style type="text/css">
+    body{padding: 30px;font-family:lucida grande;}
+    label{display:block;width:180px}
+    </style>
+</head>
+
+<body class="typo">
+
+<h3># form validator</h3>
+<form action="/" id="form">
+    <p>
+        <select name="select" id="" required data-error="select">
+            <option value="1">item 1</option>
+            <option value="2">item 2</option>
+            <option value="3">item 3</option>
+        </select>
+    </p>
+    <p><label>Text: <input name="text" required maxlength="1" list="list"></label>
+        <datalist id="list">
+            <select name="text">
+                <option>A
+                <option>B
+                <option>C
+                <option>D
+            </select>
+        </datalist>
+    <p><label>Number: <input type="number" required></label>
+
+    <p><label>Number
+        <small>(100 &lt; value &lt; 1000)</small>:
+        <input type="number" required min="1" max="10"></label>
+    <p><label>Range
+        <small>(1 to 5)</small>:
+        <input type="range" required min="1" max="5"></label>
+    <p><label>Email: <input type="email" required></label>
+
+    <p><label>Url: <input type="url" required></label>
+
+    <p><label>Tel: <input type="tel" required pattern="[0-9]{6,}"></label>
+
+    <p><label>Password: <input type="password" required></label>
+
+    <p>
+        <label><input type="radio" required name="select1" value="A">[A]</label>
+        <label><input type="radio" required name="select1" value="B">[B]</label>
+        <label><input type="radio" required name="select1" value="C">[C]</label>
+
+    <p>
+
+    <p><textarea placeholder="some text" required data-error="textarea"></textarea></p>
+    <input type="submit" value="send"/>
+</form>
+
+<script type="text/javascript" src="../lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="../validator.js"></script>
+<script type="text/javascript">
+    $('#form').validator();
+</script>
+
+</body>
+</html>

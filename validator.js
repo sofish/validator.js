@@ -1,114 +1,150 @@
-/*! @author: sofish
- * simple validator */
-(function($){
+/*! Simple Validator
+ * @author: sofish https://github.com/sofish
+ * @copyright: MIT license, Baixing Inc. */
 
-	/* rules for the validator
-	 * the keys are named correspond to the inputs type
-	 */
-	var reg = {
-			email: /^(?:[a-z0-9]+[_\-+.]?)*[a-z0-9]+@(?:([a-z0-9]+-?)*[a-z0-9]+.)+([a-z]{2,})+$/i,
-			date: /[0-9]{4}-%280[1-9]|1[012]%29-%280[1-9]|1[0-9]|2[0-9]|3[01]%29/,
-			empty: /^\s?$/
-		},
-		
-		_emptyMsg = function(){
-			return {
-				unvalid: [],
-				empty: [],
-				pass: []
-			}
-		},
-		
-		_setMsg = function(message, item){
-			var action = message === 'pass' ? 'removeClass' : 'addClass',
-				papa = item.parent() || item;
-			papa[action]('error');
-		},
-		
-		// if the value meets the rule?
-		_check = function(msg, item){
-			var value = $.trim(item.val()),
-				type = item.attr('type'),
-				patternStr = item.attr('pattern'),
+// 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
+ ~function ($) {
 
-				// `pattern` should take precedence over type
-				pattern = (patternStr && new RegExp(patternStr)) || reg[type];
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields
 
-			// make sure the item is empty
-			if(value === '') return msg['empty'].push(item), _setMsg('empty', item);
-			if(!pattern) {
-				var tagName = item[0].nodeName.toLowerCase();
-				
-				/* - -! select & textares! it suck.
-				 * DO NOT specific any more, use the `pattern` or `reg` object
-				 */
-				if(value !=='') return msg['pass'].push(item), _setMsg('pass', item);
-				return msg['unvalid'].push(item), _setMsg('unvalid', item);
-			}
-			if(!pattern.test(value)) return msg['unvalid'].push(item), _setMsg('unvaild', item);
-			
-			return msg['pass'].push(item), _setMsg('pass', item);
-		}, 
+  // 类型判断
+  patterns = {
+    email: function(text){
+      return /^(?:[a-z0-9]+[_\-+.]?)*[a-z0-9]+@(?:([a-z0-9]+-?)*[a-z0-9]+.)+([a-z]{2,})+$/i.test(text);
+    },
 
-		validator = function(form, items, callback){
-			var msg = _emptyMsg();
-			items.each(function(i, item){
-				_check(msg, $(item));
-			})
-			
-			if(msg.pass.length === items.length) form[0].submit(); 
-			callback.call(this, msg);
-		};
-		
-	/* the `callback` function accepts one argument: `message` 
-	 * u're by default to have the `message` obj which is an {Object} 
-	 *  contains the message types and the correspond items(jQuery Object)
-	 *  `unvalid`: not valid
-	 *  `empty`: the value is empty
-	 *  `pass`: the item is valid
-	 */	
-	$.fn.validate = function(options){
-		
-		var that = this,
-			items = $('[required]' ,that),
-			callback = options['callback'],
-			prevalid = options['prevalid'] || 0;
-			
-		/* dont't forget the `novalidate` attribute
-		 * prevent browser from showing the default error message
-		 */
-		typeof that.attr('novalidate') !== 'string' && that.attr('novalidate', 'true');
-		
-		that.on('submit', function(e){
-			e.preventDefault();
-			validator(that, items, callback);
-		})
-		
-		
-		/* if `prevaild` is set to true, the validator will running when
-		 *  the `[required]` item's `blur` event is fired, 
-		 *  and an `error` event will be triggered
-		 *  as well as `class="error"` will be set to the item's parentNode
-		 *  
-		 * ```
-		 * $('[required]').on('error', function(e, msg){
-		 *	 console.log(msg)
-		 * })
-		 * ```
-		 */
-		prevalid && items.on('blur', function(){
-			var msg = _emptyMsg(),
-				that = $(this);
-			_check(msg, that);
-			
-			for(var p in msg){
-				if(msg.hasOwnProperty(p) && msg[p][0] === that) {
-					_setMsg(p, that);
-					return that.trigger('error', p);
-				}
-			}
-			
-		})
-	}
-	
-})(jQuery);
+    // 仅支持 8 种类型的 day
+    // 20120409 | 2012-04-09 | 2012/04/09 | 2012.04.09 | 以上各种无 0 的状况
+    date: function (text) {
+      var reg = /^([1-2]\d{3})([-/.])?(1[0-2]|0?[1-9])([-/.])?([1-2]\d|3[01]|0?[1-9])$/
+        , taste, validDate, yyyy, mm, dd;
+
+      if (!reg.test(text)) return false;
+
+      taste = reg.exec(text);
+      year = taste[1], month = taste[3], day = taste[5];
+
+      vaildDate = function (year, month, day) {
+        var big = ['1', '3', '5', '7', '8', '10', '12']
+
+            // 闰年：四闰百不闰，四百又闰
+          , isLeap = !(/^\d{2}[0]{2}$/.test(year) ? year % 400 : year % 4)
+          , o = /^0/
+          , vaildMonth;
+
+        // 不允许 2012-4-09 这样日期和月份格式不一致的情况
+        if ((month.length !== day.length && ((month.length === 2 && o.test(month)) || o.test(day))) || !(+month) || !(+day)) return false;
+
+        month = month.replace(o, '');
+
+        if (month === '2') return isLeap ? day < 30 : day < 29;
+        return big.indexOf(month) === -1 ? day < 31 : day < 32;
+      }
+
+      return taste[2] === taste[4] && vaildDate(year, month, day);
+    },
+
+    // 手机：仅中国手机适应；以 1 开头，第二位是 3-9，并且总位数为 11 位数字
+    mobile: function(text){
+      return /^1[3-9]\d{9}$/.test(text);
+    },
+
+    // 座机：仅中国座机支持；区号可有 3、4位数并且以 0 开头；电话号不以 0 开头，最 8 位数，最少 7 位数
+    //  但 400/800 除头开外，适应电话，电话本身是 7 位数
+    // 0755-29819991 | 0755 29819991 | 400-6927972 | 4006927927 | 800...
+    tel: function(text){
+      return /^(?:(?:0\d{2,3}[- ]?[1-9]\d{6,7})|(?:[48]00[- ]?[1-9]\d{6}))$/.test(text);
+    },
+
+    // 表单项不为空
+    notEmpty: function(text){
+      return !/^\s+$/.test(text) || text.length;
+    }
+  }
+
+  // 获取待校验的项
+  fields  = function(identifie, form) {
+    return $(identifie, form);
+  }
+
+  // 校验一个表单项
+  // 出错时返回一个对象，当前表单项和类型；通过时返回 false
+  validate = function($item, type, patterns){
+    var pattern, val, pass
+
+    pattern = $item.attr('pattern');
+    type = $item.attr('type') || 'notEmpty';
+    val = $item.val();
+
+    // TODO: new 出来的这个正则是否与浏览器一致？
+    pass = pattern ? new RegExp(pattern).test(val) :  patterns[type](val);
+
+    return pass ? false : {
+      $el: $item,
+      type: type
+    }
+  }
+
+  // 校验表单项
+  validateFields = function($fields) {
+
+  }
+
+  // 校验表单
+  validateForm = function ($form) {
+
+  }
+
+  // 添加错误 class
+  // @param `$item` {jQuery Object} 传入的 element
+  // @param [optional] `klass` {String} 当一个 class 默认值是 `error`
+  // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
+  //   默认在
+  addErrorClass = function($item, klass, parent){
+    // [optional] 的项以类型判断
+    arguments.length === 1 ? (klass = 'error', parent = false) : (typeof klass === 'string' || (parent = klass, klass = 'error'));
+    return parent ? $item.parent().addClass(klass) : $item.addClass(klass);
+  }
+
+  // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
+  novalidate = function($form){
+    return $form.attr('novalidate') || $form.attr('novalidate', 'true')
+  }
+
+  // 真正的操作逻辑开始，yayayayayayaya!
+  // 用法：$form.validator(options)
+  // 参数：options = {
+  //    identifie: {String}, // 需要校验的表单项，（默认是 `[required]`）
+  //    klass: {String}, // 校验不通过时错误时添加的 class 名（默认是 `error`）
+  //    isErrorOnParent: {Boolean} // 错误出现时 class 放在当前表单项还是（默认是 element 本身）
+  //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
+  //
+  //    TODO: 再考虑一下如何做比较合适
+  //    before: {Function}, // 表单检验之前
+  //    after: {Function}, // 表单校验之后
+  //  }
+  $.fn.validator = function(options) {
+    var $form = this
+      , options = options || {}
+      , identifie = options.identifie || '[required]'
+      , klass = options.error || 'error'
+      , isErrorOnParent = options.isErrorOnParent || false
+      , method = options.method || 'blur'
+      , before = options.before
+      , after = options.after
+      , $items = fields($form, identifie)
+
+    // 防止浏览器默认校验
+    novalidate($form);
+
+    // 表单项校验
+    method && validateFields($items);
+
+    // 提交校验
+    $form.on('submit', function(e){
+      return validateForm($form);
+    })
+
+  }
+
+}(jQuery);
