@@ -148,15 +148,19 @@
     })
   }
 
-  // 校验表单
+  // 校验表单：表单通过时返回 false，不然返回所有出错的对象
   validateForm = function ($fields, method, klass, parent) {
     if(method && !validateFields.length) return true;
     var field
-    $fields.each(function() {
+
+    // 防止 push 重复项
+    unvalidFields = [];
+
+    $fields.each(function(i) {
       (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
     })
 
-    return !validateFields.length;
+    return validateFields.length ? unvalidFields : false;
   }
 
   // 添加/删除错误 class
@@ -184,6 +188,7 @@
   //    klass: {String}, // 校验不通过时错误时添加的 class 名（默认是 `error`）
   //    isErrorOnParent: {Boolean} // 错误出现时 class 放在当前表单项还是（默认是 element 本身）
   //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
+  //    errorCallback(unvalidFields): {Function}, // 出错时的 callback，第一个参数是出错的表单项集合
   //
   //    TODO: 再考虑一下如何做比较合适
   //    before: {Function}, // 表单检验之前
@@ -198,7 +203,13 @@
       , method = options.method || 'blur'
       , before = options.before
       , after = options.after
+      , errorCallback
       , $items = fields(identifie, $form)
+
+    errorCallback = options.errorCallback || function(fields){
+      // TODO: test code
+      console.log(fields);
+    }
 
     // 防止浏览器默认校验
     novalidate($form);
@@ -209,7 +220,8 @@
     // 提交校验
     $form.on('submit', function(e){
       e.preventDefault();
-      return validateForm($items, method, klass, isErrorOnParent);
+      validateForm($items, method, klass, isErrorOnParent);
+      return unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
     })
 
   }
