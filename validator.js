@@ -219,7 +219,6 @@
 
     // 提交校验
     $form.on('submit', function(e){
-      e.preventDefault();
       validateForm($items, method, klass, isErrorOnParent);
       return unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
     })
