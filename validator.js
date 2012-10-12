@@ -22,31 +22,16 @@
     // 20120409 | 2012-04-09 | 2012/04/09 | 2012.04.09 | 以上各种无 0 的状况
     date: function (text) {
       var reg = /^([1-2]\d{3})([-/.])?(1[0-2]|0?[1-9])([-/.])?([1-2]\d|3[01]|0?[1-9])$/
-        , taste, validDate, yyyy, mm, dd;
+        , taste, d;
 
       if (!reg.test(text)) return false;
 
       taste = reg.exec(text);
-      year = taste[1], month = taste[3], day = taste[5];
+      year = +taste[1], month = +taste[3] - 1, day = +taste[5];
 
-      vaildDate = function (year, month, day) {
-        var big = ['1', '3', '5', '7', '8', '10', '12']
-
-            // 闰年：四闰百不闰，四百又闰
-          , isLeap = !(/^\d{2}[0]{2}$/.test(year) ? year % 400 : year % 4)
-          , o = /^0/
-          , vaildMonth;
-
-        // 不允许 2012-4-09 这样日期和月份格式不一致的情况
-        if ((month.length !== day.length && ((month.length === 2 && o.test(month)) || o.test(day))) || !(+month) || !(+day)) return false;
-
-        month = month.replace(o, '');
-
-        if (month === '2') return isLeap ? day < 30 : day < 29;
-        return big.indexOf(month) === -1 ? day < 31 : day < 32;
-      }
-
-      return taste[2] === taste[4] && vaildDate(year, month, day);
+      d = new Date(year, month, day);
+      
+      return (year === d.getFullYear() && month === d.getMonth() && day === d.getDate());
     },
 
     // 手机：仅中国手机适应；以 1 开头，第二位是 3-9，并且总位数为 11 位数字
