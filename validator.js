@@ -5,10 +5,15 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, unvalidFields = []
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs
+    , unvalidFields = []
 
   // 类型判断
   patterns = {
+
+    // 当前校验的元素，默认没有，在 `validate()` 方法中传入
+    // $item: {},
+
     email: function(text){
       return /^(?:[a-z0-9]+[_\-+.]?)*[a-z0-9]+@(?:([a-z0-9]+-?)*[a-z0-9]+.)+([a-z]{2,})+$/i.test(text);
     },
@@ -60,9 +65,43 @@
       return /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
     },
 
+    // 判断是否在 min / max 之间
+    range: function(text){
+      var min = this.$item.attr('min')
+        , max = this.$item.attr('max')
+      return text >= min && text <= max;
+    },
+
+    // 目前只允许 http(s)
+    url: function(text){
+      return /^(?:http[s]?:\/\/)?(?:[a-z0-9]+(?:[a-z0-9]+(?:[-][a-z0-9]+)?)+\.)+[a-z]+$/i.test(text);
+    },
+
+    // 密码项目前只是不为空就 ok，可以自定义
+    password: function(text){
+      return this.notEmpty(text);
+    },
+
+    // radio 根据当年 radio 的 name 属性获取元素，所有元素都被
+    radio: function(){
+      // TODO: a better way?!
+      var form = this.$item.parents('form').eq(0)
+        , identifier = 'input:radio[name=' + this.$item.attr('name') + ']'
+        , result = false
+
+      radios || (radios = $(identifier, form))
+
+      // TODO: a faster way?!
+      radios.each(function(i, item){
+        if(item.checked && !result) return result = true;
+      })
+
+      return result;
+    },
+
     // 表单项不为空
     notEmpty: function(text){
-      return !/^\s+$/.test(text) || text.length;
+      return  !!text.length && !/^\s+$/.test(text)
     }
   }
 
@@ -81,7 +120,7 @@
     val = $item.val();
 
     // TODO: new 出来的这个正则是否与浏览器一致？
-    pass = pattern ? new RegExp(pattern).test(val) :  patterns[type](val);
+    pass = pattern ? new RegExp(pattern).test(val) : (patterns.$item = $item, patterns[type](val));
 
     return pass ? false : {
         $el: addErrorClass($item, klass, parent)
@@ -155,9 +194,7 @@
 
     // 提交校验
     $form.on('submit', function(e){
-      e.preventDefault();
-      validateForm($items, method, klass, isErrorOnParent);
-      return false;
+      return validateForm($items, method, klass, isErrorOnParent);
     })
 
   }
