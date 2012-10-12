@@ -62,14 +62,16 @@
     },
 
     number: function(text){
-      return /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
+      var min = this.$item.attr('min')
+        , max = this.$item.attr('max')
+        , result = /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
+
+      return result && (min && max ? text >= min && text <= max : true);
     },
 
     // 判断是否在 min / max 之间
     range: function(text){
-      var min = this.$item.attr('min')
-        , max = this.$item.attr('max')
-      return text >= min && text <= max;
+      return this.number(text);
     },
 
     // 目前只允许 http(s)
@@ -79,7 +81,7 @@
 
     // 密码项目前只是不为空就 ok，可以自定义
     password: function(text){
-      return this.notEmpty(text);
+      return this.text(text);
     },
 
     // radio 根据当年 radio 的 name 属性获取元素，所有元素都被
@@ -100,8 +102,16 @@
     },
 
     // 表单项不为空
-    notEmpty: function(text){
-      return  !!text.length && !/^\s+$/.test(text)
+    // [type=text] 也会进一项
+    text: function(text){
+      var max = this.$item.attr('maxlength')
+        , noEmpty
+
+       notEmpty = function(text){
+        return !!text.length && !/^\s+$/.test(text)
+      }
+
+      return max ? notEmpty(text) && text.length <= max : notEmpty(text);
     }
   }
 
@@ -116,13 +126,13 @@
     var pattern, val, pass, type
 
     pattern = $item.attr('pattern');
-    type = $item.attr('type') || 'notEmpty';
+    type = $item.attr('type') || 'text';
     val = $item.val();
 
     // TODO: new 出来的这个正则是否与浏览器一致？
     pass = pattern ? new RegExp(pattern).test(val) : (patterns.$item = $item, patterns[type](val));
 
-    return pass ? false : {
+    return pass ? (removeErrorClass($item, klass, parent), false) : {
         $el: addErrorClass($item, klass, parent)
       , type: type
     }
@@ -149,13 +159,17 @@
     return !validateFields.length;
   }
 
-  // 添加错误 class
+  // 添加/删除错误 class
   // @param `$item` {jQuery Object} 传入的 element
   // @param [optional] `klass` {String} 当一个 class 默认值是 `error`
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
   addErrorClass = function($item, klass, parent){
     return parent ? $item.parent().addClass(klass) : $item.addClass(klass);
+  }
+
+  removeErrorClass = function($item, klass, parent){
+    return parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
@@ -194,6 +208,7 @@
 
     // 提交校验
     $form.on('submit', function(e){
+      e.preventDefault();
       return validateForm($items, method, klass, isErrorOnParent);
     })
 
