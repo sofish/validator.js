@@ -127,7 +127,7 @@
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
-    val = $item.val();
+    val = $item.val().trim();
 
     // TODO: new 出来的这个正则是否与浏览器一致？
     pass = pattern ? new RegExp(pattern).test(val) : (patterns.$item = $item, patterns[type](val));
