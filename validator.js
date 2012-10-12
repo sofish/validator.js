@@ -5,7 +5,7 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, unvalidFields = []
 
   // 类型判断
   patterns = {
@@ -56,6 +56,10 @@
       return /^(?:(?:0\d{2,3}[- ]?[1-9]\d{6,7})|(?:[48]00[- ]?[1-9]\d{6}))$/.test(text);
     },
 
+    number: function(text){
+      return /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
+    },
+
     // 表单项不为空
     notEmpty: function(text){
       return !/^\s+$/.test(text) || text.length;
@@ -69,8 +73,8 @@
 
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
-  validate = function($item, type, patterns){
-    var pattern, val, pass
+  validate = function($item, klass, parent){
+    var pattern, val, pass, type
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'notEmpty';
@@ -80,19 +84,30 @@
     pass = pattern ? new RegExp(pattern).test(val) :  patterns[type](val);
 
     return pass ? false : {
-      $el: $item,
-      type: type
+        $el: addErrorClass($item, klass, parent)
+      , type: type
     }
   }
 
   // 校验表单项
-  validateFields = function($fields) {
-
+  validateFields = function($fields, method, klass, parent) {
+    // TODO：坐成 delegate 的方式？
+    var field
+    $fields.on(method, function(){
+      // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
+      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+    })
   }
 
   // 校验表单
-  validateForm = function ($form) {
+  validateForm = function ($fields, method, klass, parent) {
+    if(method && !validateFields.length) return true;
+    var field
+    $fields.each(function() {
+      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+    })
 
+    return !validateFields.length;
   }
 
   // 添加错误 class
@@ -101,8 +116,6 @@
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
   addErrorClass = function($item, klass, parent){
-    // [optional] 的项以类型判断
-    arguments.length === 1 ? (klass = 'error', parent = false) : (typeof klass === 'string' || (parent = klass, klass = 'error'));
     return parent ? $item.parent().addClass(klass) : $item.addClass(klass);
   }
 
@@ -132,19 +145,20 @@
       , method = options.method || 'blur'
       , before = options.before
       , after = options.after
-      , $items = fields($form, identifie)
+      , $items = fields(identifie, $form)
 
     // 防止浏览器默认校验
     novalidate($form);
 
     // 表单项校验
-    method && validateFields($items);
+    method && validateFields($items, method, klass, isErrorOnParent);
 
     // 提交校验
     $form.on('submit', function(e){
-      return validateForm($form);
+      e.preventDefault();
+      validateForm($items, method, klass, isErrorOnParent);
+      return false;
     })
 
   }
-
 }(jQuery);
