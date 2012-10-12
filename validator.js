@@ -101,7 +101,7 @@
       return result;
     },
 
-    // 表单项不为空
+    // text[notEmpty] 表单项不为空
     // [type=text] 也会进一项
     text: function(text){
       var max = this.$item.attr('maxlength')
@@ -123,19 +123,39 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var pattern, val, pass, type
+    var pattern, message, type, undef
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
 
-    // TODO: new 出来的这个正则是否与浏览器一致？
-    pass = pattern ? new RegExp(pattern).test(val) : (patterns.$item = $item, patterns[type](val));
+    // 所有都最先测试是不是 empty，checkbox 是可以有值
+    // 但通过来说我们更需要的是 checked 的状态
+    // 暂时去掉 radio/checkbox 的 notEmpty 检测
+    message = /^(?:radio|checkbox)$/.test(type) ? 'hi field' : patterns.$item = $item, patterns['text'](val);
+    if(!message) {
+      return {
+        $el: addErrorClass($item, klass, parent)
+        , type: type
+        , error: 'empty'
+      }
+    }
 
-    return pass ? (removeErrorClass($item, klass, parent), false) : {
+    // HTML5 pattern 支持
+    // TODO: new 出来的这个正则是否与浏览器一致？
+    message = pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
+      (patterns.$item = $item, patterns[type](val)) || 'unvalid';
+
+    // 返回的错误对象 = {
+    //    $el: {jQuery Element Object} // 当前表单项
+    //  , type: {String} //表单的类型，如 [type=radio]
+    //  , message: {String} // error message，只有两种值
+    // }
+    return message === 'unvalid' ? {
         $el: addErrorClass($item, klass, parent)
       , type: type
-    }
+      , error: 'unvalid'
+    } : (removeErrorClass($item, klass, parent), false);
   }
 
   // 校验表单项
@@ -219,6 +239,7 @@
 
     // 提交校验
     $form.on('submit', function(e){
+      e.preventDefault();
       validateForm($items, method, klass, isErrorOnParent);
       return unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
     })
