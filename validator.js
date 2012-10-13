@@ -31,7 +31,7 @@
 
       d = new Date(year, month, day);
       
-      return (year === d.getFullYear() && month === d.getMonth() && day === d.getDate());
+      return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
     },
 
     // 手机：仅中国手机适应；以 1 开头，第二位是 3-9，并且总位数为 11 位数字
@@ -50,7 +50,7 @@
       var min = this.$item.attr('min')
         , max = this.$item.attr('max')
         , result = /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
-
+console.log(this.$item,result, min, max,text);
       return result && (min && max ? text >= min && text <= max : true);
     },
 
@@ -110,6 +110,7 @@
   validate = function($item, klass, parent){
     var pattern, message, type, undef
 
+    patterns.$item = $item;
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
@@ -117,8 +118,7 @@
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox 的 notEmpty 检测
-    message = /^(?:radio|checkbox)$/.test(type) ? 'hi field' : patterns.$item = $item, patterns['text'](val);
-    if(!message) {
+    if(!/^(?:radio|checkbox)$/.test(type) && !patterns['text'](val)) {
       return {
         $el: addErrorClass($item, klass, parent)
         , type: type
@@ -129,7 +129,7 @@
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
     message = pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
-      (patterns.$item = $item, patterns[type](val)) || 'unvalid';
+      patterns[type](val) || 'unvalid';
 
     // 返回的错误对象 = {
     //    $el: {jQuery Element Object} // 当前表单项
