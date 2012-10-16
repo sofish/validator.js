@@ -58,6 +58,8 @@
 
     <p><label>Password: <input type="password" required></label>
 
+    <p><label><input type="" data-url="http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?"></label></p>
+
     <p>
         <label><input type="radio" required name="select1" value="A">[A]</label>
         <label><input type="radio" required name="select1" value="B">[B]</label>
@@ -71,7 +73,11 @@
 <script type="text/javascript" src="../lib/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="../validator.js"></script>
 <script type="text/javascript">
-    $('#form').validator();
+    $('#form').validator({
+        errorCallback: function(unvalidFields){
+            console.log(unvalidFields);
+        }
+    });
 </script>
 
 </body>

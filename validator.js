@@ -5,7 +5,7 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs, removeFromUnvalidFields
     , unvalidFields = []
 
   // 类型判断
@@ -28,7 +28,6 @@
 
       taste = reg.exec(text);
       year = +taste[1], month = +taste[3] - 1, day = +taste[5];
-
       d = new Date(year, month, day);
       
       return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
@@ -104,6 +103,28 @@
       }
 
       return max ? notEmpty(text) && text.length <= max : notEmpty(text);
+    },
+
+    // 异步验证
+    async: function(test){
+      var item = this.$item
+        , data = item.data()
+        , url = data['url']
+        , method = data['method'] || 'get'
+        , key = data['key'] || 'key'
+        , event = data['event'] || 'blur'
+        , params = {}
+
+      params[key] = text;
+
+      item.on(event, function(){
+        $[method](url, params, function(isValidate){
+          $form.trigger('validate.async.success', isValidate, item);
+        }).error(function(){
+          // $form.trigger('validate.async.error');
+          // 异步错误，供调度用，理论上线上应该继续运行
+        });
+      })
     }
   }
 
@@ -115,23 +136,29 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var pattern, message, type, undef
+    var pattern, message, type, async
 
     patterns.$item = $item;
+    patterns.$form = $item.parents('form').eq(0);
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
+    async = $item.attr('data-url');
+
 
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox 的 notEmpty 检测
     if(!/^(?:radio|checkbox)$/.test(type) && !patterns['text'](val)) {
       return {
-        $el: addErrorClass($item, klass, parent)
+          $el: addErrorClass($item, klass, parent)
         , type: type
         , error: 'empty'
       }
     }
+
+    // 异步验证则不进行普通验证
+    if(async) return patterns['async'](val);
 
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
@@ -175,6 +202,20 @@
     return validateFields.length ? unvalidFields : false;
   }
 
+  // 从 unvalidField 中删除
+  removeFromUnvalidFields = function($item){
+    var obj, index
+
+    // 从 unvalidFields 中删除
+    obj = $.grep(unvalidFields, function(item) {
+      return item['$el'] = $item;
+    })[0];
+
+    if(!obj) return;
+    index = unvalidFields.indexOf(obj);
+    return unvalidFields.splice(index, 1);
+  }
+
   // 添加/删除错误 class
   // @param `$item` {jQuery Object} 传入的 element
   // @param [optional] `klass` {String} 当一个 class 默认值是 `error`
@@ -185,7 +226,8 @@
   }
 
   removeErrorClass = function($item, klass, parent){
-    return parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
+    removeFromUnvalidFields.call(this, $item);
+    parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
@@ -215,16 +257,20 @@
       , method = options.method || 'blur'
       , before = options.before
       , after = options.after
-      , errorCallback
+      , errorCallback = options.errorCallback || function(fields){}
       , $items = fields(identifie, $form)
-
-    errorCallback = options.errorCallback || function(fields){
-      // TODO: test code
-      console.log(fields);
-    }
 
     // 防止浏览器默认校验
     novalidate($form);
+
+    // 异步验证支持：返回为 true 的时候则通过验证，不然不通过
+    $form.on('validate.async.success', function(isValidate, $item) {
+      isValidate ? (removeErrorClass($item, klass, isErrorOnParent), false) : unvalidFields.push({
+          $el: addErrorClass($item, klass, isErrorOnParent)
+        , type: $item.attr('type') || 'text'
+        , message: 'unvaild'
+      })
+    })
 
     // 表单项校验
     method && validateFields($items, method, klass, isErrorOnParent);
