@@ -47,8 +47,8 @@
     },
 
     number: function(text){
-      var min = this.$item.attr('min')
-        , max = this.$item.attr('max')
+      var min = +this.$item.attr('min')
+        , max = +this.$item.attr('max')
         , result = /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
 console.log(this.$item,result, min, max,text);
       return result && (min && max ? text >= min && text <= max : true);
