@@ -59,10 +59,30 @@ console.log(this.$item,result, min, max,text);
       return this.number(text);
     },
 
-    // 目前只允许 http(s)
-    url: function(text){
-      return /^(?:http[s]?:\/\/)?(?:[a-z0-9]+(?:[a-z0-9]+(?:[-][a-z0-9]+)?)+\.)+[a-z]+$/i.test(text);
-    },
+    // 支持类型:
+    // http(s)://(username:password@)(www.)domain.(com/co.uk)(/...)
+    // (s)ftp://(username:password@)domain.com/...
+    // git://(username:password@)domain.com/...
+    // irc(6/s)://host:port/... // 需要测试
+    // afp over TCP/IP: afp://[<user>@]<host>[:<port>][/[<path>]]
+    // telnet://<user>:<password>@<host>[:<port>/]
+    // smb://[<user>@]<host>[:<port>][/[<path>]][?<param1>=<value1>[;<param2>=<value2>]]
+    url: (function(){
+      var protocols = '((https?|s?ftp|irc[6s]?|git|afp|telnet|smb):\\/\\/)?'
+        , userInfo = '([a-z0-9]\\w*(\\:[\\S]+)?\\@)?'
+        , domain = '([a-z0-9]([\\w]*[a-z0-9])*\\.)?[a-z0-9]\\w*\\.[a-z]{2,}(\\.[a-z]{2,})?'
+        , port = '(:\\d{1,5})?'
+        , ip = '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
+        , address = '(\\/\\S*)?'
+        , genRegexp = function(patterns){
+          return new RegExp('^' + patterns.join('') + '$', 'i');
+        };
+
+      return function(text){
+        return genRegexp([protocols, userInfo, domain, port, address]).test(text) ||
+          genRegexp([protocols, userInfo, ip, port, address]).test(text);
+      };
+    })(),
 
     // 密码项目前只是不为空就 ok，可以自定义
     password: function(text){
