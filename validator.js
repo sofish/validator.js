@@ -6,7 +6,7 @@
  ~function ($) {
 
   var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios
-    , checkboxs, removeFromUnvalidFields, asyncValidate
+    , removeFromUnvalidFields, asyncValidate
     , unvalidFields = []
 
   // 类型判断
@@ -136,7 +136,6 @@
       , method = data['method'] || 'get'
       , key = data['key'] || 'key'
       , params = {}
-      , validate
 
     params[key] = text;
 
@@ -147,8 +146,7 @@
         , message: 'unvaild'
       })
     }).error(function(){
-      // $form.trigger('validate.async.error');
-      // 异步错误，供调度用，理论上线上应该继续运行
+      // 异步错误，供调试用，理论上线上不应该继续运行
     });
   }
 
@@ -162,7 +160,6 @@
   validate = function($item, klass, parent){
     var pattern, message, type, async, $form
 
-    $form = $item.parents('form').eq(0);
     patterns.$item = $item;
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
