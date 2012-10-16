@@ -116,14 +116,14 @@
     // text[notEmpty] 表单项不为空
     // [type=text] 也会进一项
     text: function(text){
-      var max = this.$item.attr('maxlength')
+      var max = parseInt(this.$item.attr('maxlength'), 10)
         , noEmpty
 
-       notEmpty = function(text){
+      notEmpty = function(text){
         return !!text.length && !/^\s+$/.test(text)
       }
-
-      return max ? notEmpty(text) && text.length <= max : notEmpty(text);
+      
+      return isNaN(max) ? notEmpty(text) : notEmpty(text) && text.length <= max;
     }
   }
 
