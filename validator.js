@@ -5,7 +5,7 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs, removeFromUnvalidFields
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs, removeFromUnvalidFields, asyncValidate
     , unvalidFields = []
 
   // 类型判断
@@ -73,22 +73,23 @@
     // afp over TCP/IP: afp://[<user>@]<host>[:<port>][/[<path>]]
     // telnet://<user>:<password>@<host>[:<port>/]
     // smb://[<user>@]<host>[:<port>][/[<path>]][?<param1>=<value1>[;<param2>=<value2>]]
-    url: (function(){
+    url: function(text){
       var protocols = '((https?|s?ftp|irc[6s]?|git|afp|telnet|smb):\\/\\/)?'
         , userInfo = '([a-z0-9]\\w*(\\:[\\S]+)?\\@)?'
         , domain = '([a-z0-9]([\\w]*[a-z0-9])*\\.)?[a-z0-9]\\w*\\.[a-z]{2,}(\\.[a-z]{2,})?'
         , port = '(:\\d{1,5})?'
         , ip = '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
         , address = '(\\/\\S*)?'
-        , genRegexp = function(patterns){
-          return new RegExp('^' + patterns.join('') + '$', 'i');
-        };
+        , domainType = [protocols, userInfo, domain, port, address]
+        , ipType = [protocols, userInfo, ip, port, address]
+        , validate
 
-      return function(text){
-        return genRegexp([protocols, userInfo, domain, port, address]).test(text) ||
-          genRegexp([protocols, userInfo, ip, port, address]).test(text);
+      validate = function(type){
+        return new RegExp('^' + type.join('') + '$', 'i').test(text);
       };
-    })(),
+
+      return validate(domainType) || validate(ipType);
+    },
 
     // 密码项目前只是不为空就 ok，可以自定义
     password: function(text){
@@ -123,32 +124,30 @@
       }
 
       return max ? notEmpty(text) && text.length <= max : notEmpty(text);
-    },
-
-    // 异步验证
-    async: function(text){
-      var item = this.$item
-        , data = item.data()
-        , url = data['url']
-        , method = data['method'] || 'get'
-        , key = data['key'] || 'key'
-        , event = data['event'] || 'blur'
-        , params = {}
-        , asyncValidate
-
-      params[key] = text;
-
-      asyncValidate = function() {
-        $[method](url, params, function(isValidate){
-          $form.trigger('validate.async.success', isValidate, item);
-        }).error(function(){
-          // $form.trigger('validate.async.error');
-          // 异步错误，供调度用，理论上线上应该继续运行
-        });
-      }
-
-      asyncValidate(), item.on(event, asyncValidate);
     }
+  }
+
+  // 异步验证
+  asyncValidate = function($item, text, klass, isErrorOnParent){
+    var data = $item.data()
+      , url = data['url']
+      , method = data['method'] || 'get'
+      , key = data['key'] || 'key'
+      , params = {}
+      , validate
+
+    params[key] = text;
+
+    $[method](url, params).success(function(isValidate){
+      isValidate ? (removeErrorClass($item, klass, isErrorOnParent), false) : unvalidFields.push({
+        $el: addErrorClass($item, klass, isErrorOnParent)
+        , type: $item.attr('type') || 'text'
+        , message: 'unvaild'
+      })
+    }).error(function(){
+      // $form.trigger('validate.async.error');
+      // 异步错误，供调度用，理论上线上应该继续运行
+    });
   }
 
   // 获取待校验的项
@@ -159,10 +158,10 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var pattern, message, type, async
+    var pattern, message, type, async, $form
 
+    $form = $item.parents('form').eq(0);
     patterns.$item = $item;
-    patterns.$form = $item.parents('form').eq(0);
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
@@ -181,7 +180,7 @@
     }
 
     // 异步验证则不进行普通验证
-    if(async) return patterns['async'](val);
+    if(async) return asyncValidate($item, val, klass, parent);
 
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
@@ -285,15 +284,6 @@
 
     // 防止浏览器默认校验
     novalidate($form);
-
-    // 异步验证支持：返回为 true 的时候则通过验证，不然不通过
-    $form.on('validate.async.success', function(isValidate, $item) {
-      isValidate ? (removeErrorClass($item, klass, isErrorOnParent), false) : unvalidFields.push({
-          $el: addErrorClass($item, klass, isErrorOnParent)
-        , type: $item.attr('type') || 'text'
-        , message: 'unvaild'
-      })
-    })
 
     // 表单项校验
     method && validateFields($items, method, klass, isErrorOnParent);
