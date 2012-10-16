@@ -13,34 +13,34 @@ a simple but powerful validator for your web applications.
 $('#form_id').validator(options);
 ```
 
-`validator` 方法支持一个 `options` 对象作为参数。当不传参数时，options 具备默认值。完整的对象如下描述：
+`validator` 方法支持一个 `options` 对象作为参数。当不传参数时，`options` 具备默认值。完整的对象如下描述：
 
 ```js
 options = {
-  // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识                                                                                      
+  // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识
   identifie: {String},                                                 
-  
+
   // 校验不通过时错误时添加的 class 名（默认是 `error`）
-  klass: {String},    
-  
-  // 错误出现时 `klass` 放在当前表单项还是父节点（默认是当前表单项）                                            
-  isErrorOnParent: {Boolean},                                 
-  
+  klass: {String},
+
+  // 错误出现时 `klass` 放在当前表单项还是父节点（默认是当前表单项）
+  isErrorOnParent: {Boolean},
+
   // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
-  method: {String | false},  
-  
-  // 出错时的 callback，第一个参数是所有出错表单项集合                     
-  errorCallback(unvalidFields): {Function},                            
-                                                                                                       
-  // TODO: 再考虑一下如何做比较合适                                                                                  
-  before: {Function}, // 表单检验之前                                                                       
-  after: {Function}, // 表单校验之后                                                                        
+  method: {String | false},
+
+  // 出错时的 callback，第一个参数是所有出错表单项集合
+  errorCallback(unvalidFields): {Function},
+
+  // TODO: 再考虑一下如何做比较合适
+  before: {Function}, // 表单检验之前
+  after: {Function}, // 表单校验之后  
  }                                                                                                     
 ```
 
 ### 二、HTML 标记
 
-目前 type 的类型支持 email/tel/url/range/number 等 HTML5 Form API 支持的类型，当 type 不存在，但为验证项时，则测试表单是否有空；当有票房 maxLength 的时候验证表单值的长度；当有 min/max 的时候和 type=range 一样验证当前值是否在 min/max 区间：min <= value <= max。
+目前 type 的类型支持 email/tel/url/range/number 等 HTML5 Form API 支持的类型，当 type 不存在，但为验证项时，则测试表单是否有空；当有标记 `maxLength` 的时候验证表单值的长度；当有 min/max 的时候和 `type=range` 一样验证当前值是否在 min/max 区间：`min <= value <= max`。
 
 同时，如果表单存在 pattern 属性，则不使用 type 作为验证，保持与 HTML5 API 一致，可以作为一种表单自定义验证的方式。比如下面这个表项，将不按 type="email" 来验证，而是使用 pattern 中的正则表达式来验证：
 
@@ -50,9 +50,9 @@ options = {
 
 注：type 的支持在 validator.js 中的 patterns 这个对象中。
 
-1 __一般标记__:
+#### 1. 一般标记:
 
-在 html 标记上，一个需要验证的表单项，需要加上 required 属性，或者 options.identifie 中指定的选择器名。如：
+在 html 标记上，一个需要验证的表单项，需要加上 `required` 属性，或者 `options.identifie` 中指定的选择器名。如：
 
 ```html
 <input type="email" required /> 
@@ -61,9 +61,9 @@ options = {
 </select>
 ```
 
-2 __Checkbox & Radio__:
+#### 2. Checkbox & Radio:
 
-input:checkbox 默认不校验，input:radio 根据 name 属性来区分组别，也即当所有 name='abc' 的 radio 有一个被 checked，那么表示这一组 radio 通过验证：
+`input:checkbox` 默认不校验，`input:radio` 根据 name 属性来区分组别，也即当所有 `name='abc'` 的 radio 有一个被 checked，那么表示这一组 radio 通过验证：
 
 ```html
 <label><input type="radio" required name="abc" value="A">[A]</label>
@@ -71,7 +71,7 @@ input:checkbox 默认不校验，input:radio 根据 name 属性来区分组别�
 <label><input type="radio" required name="abc" value="C">[C]</label>
 ```
 
-3 __异步支持__:
+#### 3. 异步支持:
 
 当需要异步验证时，在表单添加一个 data-url 的属性指定异步验证的 URL 那可，有几个可选的项：
 
