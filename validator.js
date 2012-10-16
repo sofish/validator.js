@@ -46,11 +46,18 @@
     },
 
     number: function(text){
-      var min = this.$item.attr('min')
-        , max = this.$item.attr('max')
-        , result = /^(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text);
+      var min = +this.$item.attr('min')
+        , max = +this.$item.attr('max')
+        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text)
+        , text = +text
+        , step = +this.$item.attr('step');
 
-      return result && (min && max ? text >= min && text <= max : true);
+      // ignore invalid range silently
+      isNaN(min) && (min = text - 1);
+      isNaN(max) && (max = text + 1);
+
+      // 目前的实现 step 不能小于 0
+      return result && (isNaN(step) || 0 >= step ? (text >= min && text <= max) : 0 === (text + min) % step && (text >= min && text <= max));
     },
 
     // 判断是否在 min / max 之间
