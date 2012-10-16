@@ -34,7 +34,7 @@ options = {
 
   // TODO: 再考虑一下如何做比较合适
   before: {Function}, // 表单检验之前
-  after: {Function}, // 表单校验之后  
+  after: {Function}, // 表单校验之后
  }                                                                                                     
 ```
 
@@ -80,6 +80,13 @@ data-url: 异步验证的 url
 data-method: [可选] AJAX 请求的方法: get,post,getJSON 等，默认是 get
 data-key: [可选] 发送当前表单值时用的 key，默认是 'key'：$.get(url, {key: 表单的值})
 ```
+
+html 标记如下：
+
+```html
+<input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required>
+```
+
 
 ## 通用约定和代码规范：
 
