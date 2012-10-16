@@ -99,7 +99,7 @@
     },
 
     // 异步验证
-    async: function(test){
+    async: function(text){
       var item = this.$item
         , data = item.data()
         , url = data['url']
@@ -107,17 +107,20 @@
         , key = data['key'] || 'key'
         , event = data['event'] || 'blur'
         , params = {}
+        , asyncValidate
 
       params[key] = text;
 
-      item.on(event, function(){
+      asyncValidate = function() {
         $[method](url, params, function(isValidate){
           $form.trigger('validate.async.success', isValidate, item);
         }).error(function(){
           // $form.trigger('validate.async.error');
           // 异步错误，供调度用，理论上线上应该继续运行
         });
-      })
+      }
+
+      asyncValidate(), item.on(event, asyncValidate);
     }
   }
 
