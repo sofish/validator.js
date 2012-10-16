@@ -5,7 +5,8 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios, checkboxs, removeFromUnvalidFields, asyncValidate
+  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios
+    , removeFromUnvalidFields, asyncValidate
     , unvalidFields = []
 
   // 类型判断
@@ -57,7 +58,8 @@
       isNaN(max) && (max = text + 1);
 
       // 目前的实现 step 不能小于 0
-      return result && (isNaN(step) || 0 >= step ? (text >= min && text <= max) : 0 === (text + min) % step && (text >= min && text <= max));
+      return result && (isNaN(step) || 0 >= step ?
+        (text >= min && text <= max) : 0 === (text + min) % step && (text >= min && text <= max));
     },
 
     // 判断是否在 min / max 之间
@@ -96,7 +98,7 @@
       return this.text(text);
     },
 
-    // radio 根据当年 radio 的 name 属性获取元素，所有元素都被
+    // radio 根据当前 radio 的 name 属性获取元素，只要 name 相同的这几个元素中有一个 checked，则验证难过
     radio: function(){
       // TODO: a better way?!
       var form = this.$item.parents('form').eq(0)
@@ -114,7 +116,7 @@
     },
 
     // text[notEmpty] 表单项不为空
-    // [type=text] 也会进一项
+    // [type=text] 也会进这项
     text: function(text){
       var max = parseInt(this.$item.attr('maxlength'), 10)
         , noEmpty
@@ -134,19 +136,17 @@
       , method = data['method'] || 'get'
       , key = data['key'] || 'key'
       , params = {}
-      , validate
 
     params[key] = text;
 
     $[method](url, params).success(function(isValidate){
-      isValidate ? (removeErrorClass($item, klass, isErrorOnParent), false) : unvalidFields.push({
-        $el: addErrorClass($item, klass, isErrorOnParent)
+      isValidate ? (removeErrorClass.call(this, $item, klass, isErrorOnParent), false) : unvalidFields.push({
+        $el: addErrorClass.call(this, $item, klass, isErrorOnParent)
         , type: $item.attr('type') || 'text'
         , message: 'unvaild'
       })
     }).error(function(){
-      // $form.trigger('validate.async.error');
-      // 异步错误，供调度用，理论上线上应该继续运行
+      // 异步错误，供调试用，理论上线上不应该继续运行
     });
   }
 
@@ -160,7 +160,6 @@
   validate = function($item, klass, parent){
     var pattern, message, type, async, $form
 
-    $form = $item.parents('form').eq(0);
     patterns.$item = $item;
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
@@ -173,14 +172,14 @@
     // 暂时去掉 radio/checkbox 的 notEmpty 检测
     if(!/^(?:radio|checkbox)$/.test(type) && !patterns['text'](val)) {
       return {
-          $el: addErrorClass($item, klass, parent)
+          $el: addErrorClass.call(this, $item, klass, parent)
         , type: type
         , error: 'empty'
       }
     }
 
     // 异步验证则不进行普通验证
-    if(async) return asyncValidate($item, val, klass, parent);
+    if(async) return asyncValidate.call(this, $item, val, klass, parent);
 
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
@@ -193,10 +192,10 @@
     //  , message: {String} // error message，只有两种值
     // }
     return message === 'unvalid' ? {
-        $el: addErrorClass($item, klass, parent)
+        $el: addErrorClass.call(this, $item, klass, parent)
       , type: type
       , error: 'unvalid'
-    } : (removeErrorClass($item, klass, parent), false);
+    } : (removeErrorClass.call(this, $item, klass, parent), false);
   }
 
   // 校验表单项
@@ -286,12 +285,11 @@
     novalidate($form);
 
     // 表单项校验
-    method && validateFields($items, method, klass, isErrorOnParent);
+    method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 
     // 提交校验
     $form.on('submit', function(e){
-      e.preventDefault();
-      validateForm($items, method, klass, isErrorOnParent);
+      validateForm.call(this, $items, method, klass, isErrorOnParent);
       return unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
     })
 
