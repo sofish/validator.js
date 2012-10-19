@@ -151,29 +151,6 @@
     });
   }
 
-  // 联动校验：联动的项必须存在，并且值通过校验
-  // <input data-linkage="3-1">
-  // <input data-linkage="3-2">
-  // <input data-linkage="3-3">
-  // TODO: 还有 bug
-  linkageValidate = function($item, klass, isErrorOnParent){
-    var count = +$item.data('linkage').split('-')[0]
-      , i = 1
-      , result = 0
-
-    for(;i <= count;) {
-      var id = count + '-' + i++
-        , val
-
-      $item = $('[data-linkage=' + id + ']', $item.parents('form').eq(0));
-      val = validateReturn.call(this, $item, klass, isErrorOnParent) ? 1 : 0;
-      result += val;
-    }
-
-
-    // 通过则返回 false
-    return result === count;
-  }
 
   // 二选一：二个项中必须的一个项是已经填
   // <input data-aorb="a" >
@@ -332,7 +309,7 @@
   //
   //    TODO: 再考虑一下如何做比较合适
   //    before: {Function}, // 表单检验之前
-  //    after: {Function}, // 表单校验之后
+  //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
   $.fn.validator = function(options) {
     var $form = this
@@ -341,8 +318,8 @@
       , klass = options.error || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
-      , before = options.before
-      , after = options.after
+      , before = options.before || function() {return true;}
+      , after = options.after || function() {return true;}
       , errorCallback = options.errorCallback || function(fields){}
       , $items = fields(identifie, $form)
 
@@ -355,8 +332,11 @@
     // 提交校验
     $form.on('submit', function(e){
       e.preventDefault();
+      before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
-      return unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
+
+      // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
+      return after.call(this, $items) && unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
     })
 
   }
