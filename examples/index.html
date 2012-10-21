@@ -62,10 +62,26 @@
     <input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required></label></p>
 
     <p><label>A or B:</label>
-        <input type="text" data-aorb="a" required>
+        <input type="text" data-limits="1" required name="ab">
         <br />
-        <input type="text" data-aorb="b" required>
+        <input type="text" data-limits="1" required name="ab">
+        <br />
+        <input type="text" data-limits="1" required name="ab">
     </p>
+
+    <p><label>Checkbox #1:
+        <small>(at least 1, up to 4)</small></label>
+        <label><input type="checkbox" data-limits="1,4" required name="abcde" value="a">a</label>
+        <label><input type="checkbox" data-limits="1,4" required name="abcde" value="b">b</label>
+        <label><input type="checkbox" data-limits="1,4" required name="abcde" value="c">c</label>
+        <label><input type="checkbox" data-limits="1,4" required name="abcde" value="d">d</label>
+        <label><input type="checkbox" data-limits="1,4" required name="abcde" value="e">e</label>
+
+    <p><label>Checkbox #2:
+        <small>(can be 0, up to 2)</small></label>
+        <label><input type="checkbox" data-limits=",2" required name="123" value="1">1</label>
+        <label><input type="checkbox" data-limits=",2" required name="123" value="2">2</label>
+        <label><input type="checkbox" data-limits=",2" required name="123" value="3">3</label>
 
     <p>
         <label><input type="radio" required name="abc" value="A">[A]</label>
