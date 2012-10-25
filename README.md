@@ -32,9 +32,8 @@ options = {
   // 出错时的 callback，第一个参数是所有出错表单项集合
   errorCallback(unvalidFields): {Function},
 
-  // TODO: 再考虑一下如何做比较合适
   before: {Function}, // 表单检验之前
-  after: {Function}, // 表单校验之后
+  after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
  }                                                                                                     
 ```
 
@@ -115,4 +114,4 @@ NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题�
 
 ## 贡献者
 
-TODO:...
+__[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)

@@ -227,9 +227,6 @@
     // 二选一验证：有可能为空
     if(aorb) return aorbValidate.apply(this, commonArgs);
 
-    // 联动验证
-    if(linkage) return linkageValidate.apply(this, commonArgs);
-
     // 异步验证则不进行普通验证
     if(async) return asyncValidate.apply(this, commonArgs);
 
