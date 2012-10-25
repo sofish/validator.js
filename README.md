@@ -97,6 +97,26 @@ html 标记如下：
 
 NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题在于这是个好设计吗？所以多想一下。
 
+### 5. 支持自定义元素的事件
+
+可以在 html 中添加 `data-event` 以在单独的元素中触发自定义事件。假设我们设置一个 `hello` 事件，最终会触发在验证这个表单前触发 `before.hello` 事件，并且在验证完当前表单后触发一个 `after.hello` 事件。默认不触发任何事件：
+
+```html
+<input id="event" type="text" data-event="hello" required>
+```
+
+可以使用标准的 jQuery `on` 来监听这个事件：
+
+```js
+$('#event').on('before:hello', function(event, element){
+  alert('`before.hello` event trigger on $("#' + element.id + '")');
+})
+
+$('#event').on('after:hello', function(event, element){
+  alert('`after.hello` event trigger on $("#' + element.id + '")');
+})
+```
+
 
 ## 通用约定和代码规范：
 

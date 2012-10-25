@@ -30,7 +30,7 @@
       taste = reg.exec(text);
       year = +taste[1], month = +taste[3] - 1, day = +taste[5];
       d = new Date(year, month, day);
-      
+
       return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
     },
 
@@ -124,7 +124,7 @@
       notEmpty = function(text){
         return !!text.length && !/^\s+$/.test(text)
       }
-      
+
       return isNaN(max) ? notEmpty(text) : notEmpty(text) && text.length <= max;
     }
   }
