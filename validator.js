@@ -173,11 +173,12 @@
 
     if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
 
-    var pattern, type, val
+    var pattern, type, val, ret
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
+    event = $item.data('event');
 
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
@@ -190,11 +191,13 @@
     //  , type: {String} //表单的类型，如 [type=radio]
     //  , message: {String} // error message，只有两种值
     // }
-    return /^(?:unvalid|empty)$/.test(message) ? {
+    // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
+    return /^(?:unvalid|empty)$/.test(message) ? (ret = {
         $el: addErrorClass.call(this, $item, klass, parent)
       , type: type
       , error: message
-    } : (removeErrorClass.call(this, $item, klass, parent), false);
+    }, $item.trigger('after:' + event, $item), ret):
+    (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
   }
 
   // 获取待校验的项
@@ -205,23 +208,27 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var async, linkage, aorb, type, val, commonArgs
+    var async, aorb, type, val, commonArgs
 
     // 把当前元素放到 patterns 对象中备用
     patterns.$item = $item;
     type = $item.attr('type');
     val = $item.val();
 
-    async = $item.attr('data-url');
-    linkage = $item.attr('data-linkage');
-    aorb = $item.attr('data-aorb');
+    async = $item.data('url');
+    aorb = $item.data('aorb');
+    event = $item.data('event');
 
     commonArgs = [$item, klass, parent]
+
+    // 当指定 `data-event` 的时候在检测前触发自定义事件
+    // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
+    event && $item.trigger('before:' + event, $item);
 
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
-    if(!(/^(?:radio|checkbox)$/.test(type) || aorb || linkage) && !patterns['text'](val))
+    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
       return validateReturn.call(this, $item, klass, parent, 'empty')
 
     // 二选一验证：有可能为空
