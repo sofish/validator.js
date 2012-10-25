@@ -141,11 +141,8 @@
     params[key] = text;
 
     $[method](url, params).success(function(isValidate){
-      isValidate ? (removeErrorClass.call(this, $item, klass, isErrorOnParent), false) : unvalidFields.push({
-        $el: addErrorClass.call(this, $item, klass, isErrorOnParent)
-        , type: $item.attr('type') || 'text'
-        , message: 'unvaild'
-      })
+      var message = isValidate ? 'IM VALIDED' : 'unvalid';
+      return validateReturn.call(this, $item, klass, isErrorOnParent, message);
     }).error(function(){
       // 异步错误，供调试用，理论上线上不应该继续运行
     });
@@ -307,7 +304,6 @@
   //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
   //    errorCallback(unvalidFields): {Function}, // 出错时的 callback，第一个参数是出错的表单项集合
   //
-  //    TODO: 再考虑一下如何做比较合适
   //    before: {Function}, // 表单检验之前
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
