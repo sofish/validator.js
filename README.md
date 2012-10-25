@@ -1,6 +1,6 @@
 # validator.js
 
-a simple but powerful validator for your web applications.
+一个简单、轻量级，但功能强大的 Validator 组件，并且可以方便扩展类型判断：
 
 - jQuery 插件，即插即用
 - 基于 HTML5 的 API 设计
@@ -86,6 +86,17 @@ html 标记如下：
 ```html
 <input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required>
 ```
+
+### 4. 二选一
+
+支持二选一，比如联系方式，座机和手机可以只填一项。HTML 的标记如下，在需要此功能的项添加 `data-aorb` 属性，指定 a 或者 b，顺序可以相反：
+
+```js
+<input data-aorb="a" >
+<input data-aorb="b" >
+```
+
+NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题在于这是个好设计吗？所以多想一下。
 
 
 ## 通用约定和代码规范：
