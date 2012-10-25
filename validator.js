@@ -331,7 +331,6 @@
 
     // 提交校验
     $form.on('submit', function(e){
-      e.preventDefault();
       before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 
