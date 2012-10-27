@@ -287,10 +287,10 @@
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
   addErrorClass = function($item, klass, parent){
-    if (typeof(parent) === 'string') return $item.parents(parent).addClass(klass)
+    if (typeof(parent) === 'string') return $item.closest(parent).addClass(klass)
     else return parent ? $item.parent().addClass(klass) : $item.addClass(klass)
   }
-
+parent
   removeErrorClass = function($item, klass, parent){
     removeFromUnvalidFields.call(this, $item);
     parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
