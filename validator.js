@@ -218,7 +218,6 @@
     async = $item.data('url');
     aorb = $item.data('aorb');
     event = $item.data('event');
-    if ($item.data('parent')) parent = $item.data('parent')
 
     commonArgs = [$item, klass, parent]
 
@@ -287,8 +286,10 @@
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
   addErrorClass = function($item, klass, parent){
-    if (typeof(parent) === 'string') return $item.closest(parent).addClass(klass)
-    else return parent ? $item.parent().addClass(klass) : $item.addClass(klass)
+    parent = $item.data('parent') ? $item.closest(parent) : parent ? $item.parent() : false;
+    return parent ? parent.addClass(klass) : $item.addClass(klass); 
+    //if (typeof(parent) === 'string') return $item.closest(parent).addClass(klass)
+    //else return parent ? $item.parent().addClass(klass) : $item.addClass(klass)
   }
 parent
   removeErrorClass = function($item, klass, parent){
