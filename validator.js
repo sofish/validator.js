@@ -286,15 +286,13 @@
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
   addErrorClass = function($item, klass, parent){
-    parent = $item.data('parent') ? $item.closest(parent) : parent ? $item.parent() : false;
-    return parent ? parent.addClass(klass) : $item.addClass(klass); 
-    //if (typeof(parent) === 'string') return $item.closest(parent).addClass(klass)
-    //else return parent ? $item.parent().addClass(klass) : $item.addClass(klass)
+    parent = $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : false;
+    return parent ? parent.addClass(klass) : $item.addClass(klass);
   }
 parent
   removeErrorClass = function($item, klass, parent){
     removeFromUnvalidFields.call(this, $item);
-    parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
+    $item.data('parent') ? $($item.data('parent')).removeClass(klass) : parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
