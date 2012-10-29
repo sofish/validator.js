@@ -7,7 +7,7 @@
 
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
     , validateFields, radios, removeFromUnvalidFields, asyncValidate, linkageValidate
-    , aorbValidate, validateReturn, unvalidFields = []
+    , limitsValidate, validateReturn, unvalidFields = []
 
   // 类型判断
   patterns = {
@@ -115,6 +115,11 @@
       return result;
     },
 
+    // 目前只检验是否已选，多选需结合 limitsValidate
+    checkbox: function(){
+      return !!this.$item.attr('checked');
+    },
+
     // text[notEmpty] 表单项不为空
     // [type=text] 也会进这项
     text: function(text){
@@ -148,44 +153,39 @@
     });
   }
 
-
-  // 二选一：二个项中必须的一个项是已经填
-  // <input data-aorb="a" >
-  // <input data-aorb="b" >
-  aorbValidate = function($item, klass, isErrorOnParent){
-    var id = $item.data('aorb') === 'a' ? 'b' : 'a'
-      , $pair = $('[data-aorb=' + id + ']', $item.parents('form').eq(0))
-      , a = [$item, klass, isErrorOnParent]
-      , b = [$pair, klass, isErrorOnParent]
+  // 把有相同 name 属性的元素编为一组，判断组内所有合法元素数量是否在范围内
+  // limits: String, 'min,max', 'min,' 只有最小值，',max' 只有最大值，'n' 则只允许有 n 个
+  limitsValidate = function($item, klass, parent){
+    var $items = $item.closest('form').find('[type=' + $item.attr('type') + '][name="' + $item.attr('name') + '"]')
+      , limits = $item.attr('data-limits')
+      , taste = /^(\d)*( *, *)*(\d)*$/.exec(limits) || []
+      , min = parseInt(taste[1], 10)
+      , max = parseInt(taste[3], 10)
       , result = 0
+      , _unvalidFields = []
+      , message, field
 
-    result += validateReturn.apply(this, a) ? 0 : 1
-    result += validateReturn.apply(this, b) ? 0 : 1;
+    $.each($items, function(idx, item){
+      result += true === validate.apply(this, [$(item), klass, parent]) ? 1 : 0
+    })
 
-    result = result > 0 ? (removeErrorClass.apply(this, a), removeErrorClass.apply(this, b), false) : true;
+    isNaN(min) && (min = 0)
+    ;(isNaN(max) || !taste[2]) && (max = result)
+    // FIXME: different error messages for different elements
+    ;(min > result || result > max) && (message = 'unvalid')
 
-    // 通过则返回 false
-    return result;
+    // TODO: better way to handle error elements
+    $.each($items, function(){
+      field = validateReturn.apply(this, [$(this), klass, parent, message])
+      field && _unvalidFields.push(field)
+    })
+
+    return _unvalidFields;
   }
 
   // 验证后的返回值
   validateReturn = function($item, klass, parent, message){
-
-    if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
-
-    var pattern, type, val, ret
-
-    pattern = $item.attr('pattern');
-    type = $item.attr('type') || 'text';
-    val = $item.val().trim();
-    event = $item.data('event');
-
-    // HTML5 pattern 支持
-    // TODO: new 出来的这个正则是否与浏览器一致？
-    message = message ? message :
-      pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
-      patterns[type](val) || 'unvalid';
-
+    var ret
     // 返回的错误对象 = {
     //    $el: {jQuery Element Object} // 当前表单项
     //  , type: {String} //表单的类型，如 [type=radio]
@@ -194,10 +194,10 @@
     // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
     return /^(?:unvalid|empty)$/.test(message) ? (ret = {
         $el: addErrorClass.call(this, $item, klass, parent)
-      , type: type
+      , type: $item.attr('type') || 'text'
       , error: message
-    }, $item.trigger('after:' + event, $item), ret):
-    (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
+    }, $item.trigger('after:' + $item.data('event'), $item), ret):
+    (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + $item.data('event'), $item), false);
   }
 
   // 获取待校验的项
@@ -208,37 +208,42 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var async, aorb, type, val, commonArgs
 
-    // 把当前元素放到 patterns 对象中备用
-    patterns.$item = $item;
-    type = $item.attr('type');
-    val = $item.val();
+    if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
+
+    var async, type, val, limits, pattern, message
 
     async = $item.data('url');
-    aorb = $item.data('aorb');
     event = $item.data('event');
-
-    commonArgs = [$item, klass, parent]
 
     // 当指定 `data-event` 的时候在检测前触发自定义事件
     // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
     event && $item.trigger('before:' + event, $item);
 
+    // 异步验证则不进行普通验证
+    if(async) return asyncValidate.apply(this, [$item, klass, parent]);
+
+    // 把当前元素放到 patterns 对象中备用
+    patterns.$item = $item;
+    type = $item.attr('type') || 'text';
+    val = $item.val();
+    limits = $item.attr('data-limits') || false
+
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
-    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
-      return validateReturn.call(this, $item, klass, parent, 'empty')
+    if (!limits && !/^(?:radio|checkbox)$/.test(type) && !patterns['text'](val))
+      return validateReturn.call(this, $item, klass, parent, 'empty');
 
-    // 二选一验证：有可能为空
-    if(aorb) return aorbValidate.apply(this, commonArgs);
-
-    // 异步验证则不进行普通验证
-    if(async) return asyncValidate.apply(this, commonArgs);
+    pattern = $item.attr('pattern');
+    // HTML5 pattern 支持
+    // TODO: new 出来的这个正则是否与浏览器一致？
+    message = message ? message :
+      pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
+      patterns[type](val) || 'unvalid';
 
     // 正常验证返回值
-    return validateReturn.call(this, $item, klass, parent);
+    return limits ? message : validateReturn.call(this, $item, klass, parent, message);
   }
 
   // 校验表单项
@@ -247,22 +252,36 @@
     var field
     $fields.on(method, function(){
       // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
-      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+      if (this.getAttribute('data-limits')) {
+        unvalidFields = unvalidFields.concat(limitsValidate.apply(this, [$(this), klass, parent]))
+      } else {
+        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+      }
     })
   }
 
   // 校验表单：表单通过时返回 false，不然返回所有出错的对象
   validateForm = function ($fields, method, klass, parent) {
     if(method && !validateFields.length) return true;
-    var field
+    var field, groups = {}
 
     // 防止 push 重复项
     unvalidFields = [];
 
-    $fields.each(function(i) {
-      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+    $fields.each(function() {
+      if ($(this).attr('data-limits')) {
+        groups[this.name] instanceof Array || (groups[this.name] = [])
+        if (1 < groups[this.name].length) return;
+        groups[this.name].push(this)
+      } else {
+        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field)
+      }
     })
 
+    for (var k in groups) {
+      unvalidFields = unvalidFields.concat(limitsValidate.apply(this, [$(groups[k]), klass, parent]))
+    }
+    // FIXME: Checkbox demo 2: validateFields.length alway equal true, can't return invalid elements
     return validateFields.length ? unvalidFields : false;
   }
 
@@ -334,6 +353,7 @@
 
     // 提交校验
     $form.on('submit', function(e){
+      e.preventDefault()
       before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 
