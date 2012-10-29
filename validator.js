@@ -5,9 +5,9 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
  ~function ($) {
 
-  var patterns, fields, addErrorClass, novalidate, validateForm, validateFields, radios
-    , removeFromUnvalidFields, asyncValidate, linkageValidate, aorbValidate, validateReturn
-    , unvalidFields = []
+  var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
+    , validateFields, radios, removeFromUnvalidFields, asyncValidate, linkageValidate
+    , aorbValidate, validateReturn, unvalidFields = []
 
   // 类型判断
   patterns = {
@@ -285,14 +285,17 @@
   // @param [optional] `klass` {String} 当一个 class 默认值是 `error`
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
   //   默认在
-  addErrorClass = function($item, klass, parent){
-    parent = $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : false;
-    return parent ? parent.addClass(klass) : $item.addClass(klass);
+  errorElement = function($item, parent){
+    return $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : $item;
   }
-parent
+
+  addErrorClass = function($item, klass, parent){
+    errorElement($item, parent).addClass(klass)
+  }
+
   removeErrorClass = function($item, klass, parent){
     removeFromUnvalidFields.call(this, $item);
-    $item.data('parent') ? $($item.data('parent')).removeClass(klass) : parent ? $item.parent().removeClass(klass) : $item.removeClass(klass);
+    errorElement($item, parent).removeClass(klass)
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
