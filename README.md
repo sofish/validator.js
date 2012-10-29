@@ -49,7 +49,7 @@ options = {
 
 注：type 的支持在 validator.js 中的 patterns 这个对象中。
 
-#### 1. 一般标记:
+#### 1. 一般标记
 
 在 html 标记上，一个需要验证的表单项，需要加上 `required` 属性，或者 `options.identifie` 中指定的选择器名。如：
 
@@ -60,7 +60,7 @@ options = {
 </select>
 ```
 
-#### 2. Checkbox & Radio:
+#### 2. Checkbox & Radio
 
 `input:checkbox` 默认不校验，`input:radio` 根据 name 属性来区分组别，也即当所有 `name='abc'` 的 radio 有一个被 checked，那么表示这一组 radio 通过验证：
 
@@ -70,7 +70,7 @@ options = {
 <label><input type="radio" required name="abc" value="C">[C]</label>
 ```
 
-#### 3. 异步支持:
+#### 3. 异步支持
 
 当需要异步验证时，在表单添加一个 data-url 的属性指定异步验证的 URL 那可，有几个可选的项：
 
@@ -86,7 +86,7 @@ html 标记如下：
 <input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required>
 ```
 
-### 4. 二选一
+#### 4. 二选一
 
 支持二选一，比如联系方式，座机和手机可以只填一项。HTML 的标记如下，在需要此功能的项添加 `data-aorb` 属性，指定 a 或者 b，顺序可以相反：
 
@@ -97,7 +97,7 @@ html 标记如下：
 
 NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题在于这是个好设计吗？所以多想一下。
 
-### 5. 支持自定义元素的事件
+#### 5. 支持自定义元素的事件
 
 可以在 html 中添加 `data-event` 以在单独的元素中触发自定义事件。假设我们设置一个 `hello` 事件，最终会触发在验证这个表单前触发 `before.hello` 事件，并且在验证完当前表单后触发一个 `after.hello` 事件。默认不触发任何事件：
 
@@ -116,7 +116,16 @@ $('#event').on('after:hello', function(event, element){
   alert('`after.hello` event trigger on $("#' + element.id + '")');
 })
 ```
+#### 6. 支持在指定元素添加错误 class
+可以在 html 中添加 `data-parent` 用以指定需要添加错误 class 的元素。例如一个表单被嵌套多层，可以通过在该表单上添加 `data-parent='.parent'` 来制定在距该表单最近的父级元素中 `class="parent"` 的元素上添加错误 class。例：
 
+```html
+	<div class="parent">
+		<p>
+			<input type="test" data-parent=".test" required>
+		</p>
+	</div>
+```
 
 ## 通用约定和代码规范：
 
