@@ -30,7 +30,7 @@
       taste = reg.exec(text);
       year = +taste[1], month = +taste[3] - 1, day = +taste[5];
       d = new Date(year, month, day);
-      
+
       return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
     },
 
@@ -129,7 +129,7 @@
       notEmpty = function(text){
         return !!text.length && !/^\s+$/.test(text)
       }
-      
+
       return isNaN(max) ? notEmpty(text) : notEmpty(text) && text.length <= max;
     }
   }
@@ -146,11 +146,8 @@
     params[key] = text;
 
     $[method](url, params).success(function(isValidate){
-      isValidate ? (removeErrorClass.call(this, $item, klass, isErrorOnParent), false) : unvalidFields.push({
-        $el: addErrorClass.call(this, $item, klass, isErrorOnParent)
-        , type: $item.attr('type') || 'text'
-        , message: 'unvalid'
-      })
+      var message = isValidate ? 'IM VALIDED' : 'unvalid';
+      return validateReturn.call(this, $item, klass, isErrorOnParent, message);
     }).error(function(){
       // 异步错误，供调试用，理论上线上不应该继续运行
     });
@@ -206,11 +203,12 @@
 
     if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
 
-    var pattern, type, val
+    var pattern, type, val, ret
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
     val = $item.val().trim();
+    event = $item.data('event');
 
     // HTML5 pattern 支持
     // TODO: new 出来的这个正则是否与浏览器一致？
@@ -218,7 +216,18 @@
       pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
       patterns[type](val) || 'unvalid';
 
-    return packageErrorObject.apply(this, [$item, klass, parent, type, message]);
+    // 返回的错误对象 = {
+    //    $el: {jQuery Element Object} // 当前表单项
+    //  , type: {String} //表单的类型，如 [type=radio]
+    //  , message: {String} // error message，只有两种值
+    // }
+    // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
+    return /^(?:unvalid|empty)$/.test(message) ? (ret = {
+        $el: addErrorClass.call(this, $item, klass, parent)
+      , type: type
+      , error: message
+    }, $item.trigger('after:' + event, $item), ret):
+    (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
   }
 
   // 获取待校验的项
@@ -229,26 +238,31 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var async, linkage, type, val, commonArgs
+    var async, aorb, type, val, commonArgs
 
     // 把当前元素放到 patterns 对象中备用
     patterns.$item = $item;
     type = $item.attr('type');
     val = $item.val();
 
-    async = $item.attr('data-url');
-    linkage = $item.attr('data-linkage');
+    async = $item.data('url');
+    aorb = $item.data('aorb');
+    event = $item.data('event');
 
     commonArgs = [$item, klass, parent]
+
+    // 当指定 `data-event` 的时候在检测前触发自定义事件
+    // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
+    event && $item.trigger('before:' + event, $item);
 
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
-    if(!(/^(?:radio|checkbox)$/.test(type) || linkage) && !patterns['text'](val))
+    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
       return validateReturn.call(this, $item, klass, parent, 'empty')
 
-    // 联动验证
-    if(linkage) return linkageValidate.apply(this, commonArgs);
+    // 二选一验证：有可能为空
+    if(aorb) return aorbValidate.apply(this, commonArgs);
 
     // 异步验证则不进行普通验证
     if(async) return asyncValidate.apply(this, commonArgs);
@@ -338,7 +352,6 @@
   //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
   //    errorCallback(unvalidFields): {Function}, // 出错时的 callback，第一个参数是出错的表单项集合
   //
-  //    TODO: 再考虑一下如何做比较合适
   //    before: {Function}, // 表单检验之前
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
@@ -362,7 +375,6 @@
 
     // 提交校验
     $form.on('submit', function(e){
-      e.preventDefault();
       before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 

@@ -89,6 +89,8 @@
         <label><input type="radio" required name="abc" value="C">[C]</label>
     <p>
 
+  <p><label>Custom Event: <input id="event" type="text" data-event="hello" required></label>
+
     <p><textarea placeholder="some text" required data-error="textarea"></textarea></p>
     <input type="submit" value="send"/>
 </form>
@@ -99,9 +101,17 @@
     $('#form').validator({
         errorCallback: function(unvalidFields){
             console.log(unvalidFields);
-        },
-        isErrorOnParent: true
+        }
+        //, isErrorOnParent: true
     });
+
+  $('#event').on('before:hello', function(event, element){
+    alert('`before.hello` event trigger on $("#' + element.id + '")');
+  })
+
+  $('#event').on('after:hello', function(event, element){
+    alert('`after.hello` event trigger on $("#' + element.id + '")');
+  })
 </script>
 
 </body>

@@ -1,6 +1,6 @@
 # validator.js
 
-a simple but powerful validator for your web applications.
+一个简单、轻量级，但功能强大的 Validator 组件，并且可以方便扩展类型判断：
 
 - jQuery 插件，即插即用
 - 基于 HTML5 的 API 设计
@@ -32,9 +32,8 @@ options = {
   // 出错时的 callback，第一个参数是所有出错表单项集合
   errorCallback(unvalidFields): {Function},
 
-  // TODO: 再考虑一下如何做比较合适
   before: {Function}, // 表单检验之前
-  after: {Function}, // 表单校验之后
+  after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
  }                                                                                                     
 ```
 
@@ -87,6 +86,37 @@ html 标记如下：
 <input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required>
 ```
 
+### 4. 二选一
+
+支持二选一，比如联系方式，座机和手机可以只填一项。HTML 的标记如下，在需要此功能的项添加 `data-aorb` 属性，指定 a 或者 b，顺序可以相反：
+
+```js
+<input data-aorb="a" >
+<input data-aorb="b" >
+```
+
+NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题在于这是个好设计吗？所以多想一下。
+
+### 5. 支持自定义元素的事件
+
+可以在 html 中添加 `data-event` 以在单独的元素中触发自定义事件。假设我们设置一个 `hello` 事件，最终会触发在验证这个表单前触发 `before.hello` 事件，并且在验证完当前表单后触发一个 `after.hello` 事件。默认不触发任何事件：
+
+```html
+<input id="event" type="text" data-event="hello" required>
+```
+
+可以使用标准的 jQuery `on` 来监听这个事件：
+
+```js
+$('#event').on('before:hello', function(event, element){
+  alert('`before.hello` event trigger on $("#' + element.id + '")');
+})
+
+$('#event').on('after:hello', function(event, element){
+  alert('`after.hello` event trigger on $("#' + element.id + '")');
+})
+```
+
 
 ## 通用约定和代码规范：
 
@@ -104,4 +134,4 @@ html 标记如下：
 
 ## 贡献者
 
-TODO:...
+__[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)
