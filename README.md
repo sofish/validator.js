@@ -117,14 +117,14 @@ $('#event').on('after:hello', function(event, element){
 })
 ```
 #### 6. 支持在指定元素添加错误 class
-可以在 html 中添加 `data-parent` 用以指定需要添加错误 class 的元素。例如一个表单被嵌套多层，可以通过在该表单上添加 `data-parent='.parent'` 来制定在距该表单最近的父级元素中 `class="parent"` 的元素上添加错误 class。例：
+可以在 html 中添加 `data-parent` 用以指定需要添加错误 class 的元素，属性值为任意 jQuery 选择器支持的语法。例如一个表单被嵌套多层，可以通过在该表单上添加 `data-parent='div[name="test"].parent'` 来制定在距该表单最近的父级元素中 `name="test"` 并且 `class="parent"` 的 `div` 元素上添加错误 class。例：
 
 ```html
-	<div class="parent">
-		<p>
-			<input type="test" data-parent=".test" required>
-		</p>
-	</div>
+<div name="test" class="parent">
+	<p>
+		<input type="test" data-parent="div[name="test"].parent" required>
+	</p>
+</div>
 ```
 
 ## 通用约定和代码规范：
@@ -143,4 +143,5 @@ $('#event').on('after:hello', function(event, element){
 
 ## 贡献者
 
-__[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)
+- __[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)
+- __[青花木木](https://github.com/zhanglin800)__: [http://zhanglin.org](http://zhanglin.org)
