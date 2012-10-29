@@ -284,7 +284,6 @@
   // @param `$item` {jQuery Object} 传入的 element
   // @param [optional] `klass` {String} 当一个 class 默认值是 `error`
   // @param [optional] `parent` {Boolean} 为 true 的时候，class 被添加在当前出错元素的 parentNode 上
-  //   默认在
   errorElement = function($item, parent){
     return $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : $item;
   }
