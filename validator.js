@@ -245,9 +245,11 @@
   validateFields = function($fields, method, klass, parent) {
     // TODO：坐成 delegate 的方式？
     var field
-    $fields.on(method, function(){
-      // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
-      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+    $.each($fields, function(i, f){
+      $(f).on(/^radio|checkbox/.test(f.type) || "SELECT" === f.tagName ? 'change' : method , function(){
+        // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
+        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+      })
     })
   }
 
