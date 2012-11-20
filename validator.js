@@ -1,4 +1,4 @@
-/*! Simple Validator
+/*! Validator.js
  * @author: sofish https://github.com/sofish
  * @copyright: MIT license */
 
@@ -239,7 +239,6 @@
     if(async) return asyncValidate.apply(this, commonArgs);
 
     // 正常验证返回值
-    //console.log(validateReturn.call(this, $item, klass, parent));
     return validateReturn.call(this, $item, klass, parent);
   }
 
@@ -258,13 +257,10 @@
   // 校验表单：表单通过时返回 false，不然返回所有出错的对象
   validateForm = function ($fields, method, klass, parent) {
     if(method && !validateFields.length) return true;
-    var field
 
-    // 防止 push 重复项
-    unvalidFields = [];
-
-    $fields.each(function(i) {
-      (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+    unvalidFields = $.map($fields, function(el){
+        var field = validate.call(null, $(el), klass, parent);
+        if(field) return field;
     })
 
     return validateFields.length ? unvalidFields : false;
@@ -339,6 +335,9 @@
 
     // 提交校验
     $form.on('submit', function(e){
+
+        e.preventDefault();
+
       before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 

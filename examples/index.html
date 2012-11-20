@@ -84,9 +84,8 @@
 <script type="text/javascript">
     $('#form').validator({
         errorCallback: function(unvalidFields){
-            console.log(unvalidFields);
             $(unvalidFields).each(function(i,item){
-              //console.log(unvalidFields)
+              console.log(item.$el[0])
             })
         }
         //, isErrorOnParent: true
