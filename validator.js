@@ -6,7 +6,7 @@
  ~function ($) {
 
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
-    , validateFields, radios, removeFromUnvalidFields, asyncValidate, linkageValidate
+    , validateFields, radios, removeFromUnvalidFields, asyncValidate
     , aorbValidate, validateReturn, unvalidFields = []
 
   // 类型判断
@@ -162,7 +162,8 @@
     result += validateReturn.apply(this, a) ? 0 : 1
     result += validateReturn.apply(this, b) ? 0 : 1;
 
-    result = result > 0 ? (removeErrorClass.apply(this, a), removeErrorClass.apply(this, b), false) : true;
+    result = result > 0 ? (removeErrorClass.apply(this, a), removeErrorClass.apply(this, b), false) :
+      validateReturn.apply(this, a.concat('unvalid'));
 
     // 通过则返回 false
     return result;
@@ -238,6 +239,7 @@
     if(async) return asyncValidate.apply(this, commonArgs);
 
     // 正常验证返回值
+    //console.log(validateReturn.call(this, $item, klass, parent));
     return validateReturn.call(this, $item, klass, parent);
   }
 
@@ -277,7 +279,8 @@
 
     if(!obj) return;
     index = unvalidFields.indexOf(obj);
-    return unvalidFields.splice(index, 1);
+    unvalidFields.splice(index, 1);
+    return unvalidFields;
   }
 
   // 添加/删除错误 class
@@ -289,12 +292,12 @@
   }
 
   addErrorClass = function($item, klass, parent){
-    errorElement($item, parent).addClass(klass)
+    return errorElement($item, parent).addClass(klass)
   }
 
   removeErrorClass = function($item, klass, parent){
     removeFromUnvalidFields.call(this, $item);
-    errorElement($item, parent).removeClass(klass)
+    return errorElement($item, parent).removeClass(klass)
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）

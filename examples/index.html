@@ -85,16 +85,19 @@
     $('#form').validator({
         errorCallback: function(unvalidFields){
             console.log(unvalidFields);
+            $(unvalidFields).each(function(i,item){
+              //console.log(unvalidFields)
+            })
         }
         //, isErrorOnParent: true
     });
 
   $('#event').on('before:hello', function(event, element){
-    alert('`before.hello` event trigger on $("#' + element.id + '")');
+    console.log('`before.hello` event trigger on $("#' + element.id + '")');
   })
 
   $('#event').on('after:hello', function(event, element){
-    alert('`after.hello` event trigger on $("#' + element.id + '")');
+    console.log('`after.hello` event trigger on $("#' + element.id + '")');
   })
 </script>
 
