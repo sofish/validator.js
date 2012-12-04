@@ -174,11 +174,13 @@
 
     if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
 
-    var pattern, type, val, ret
+    var pattern, type, val, ret, event
 
     pattern = $item.attr('pattern');
     type = $item.attr('type') || 'text';
-    val = $item.val().trim();
+    // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
+    type = patterns[type] ? type : 'text';
+    val = $.trim($item.val());
     event = $item.data('event');
 
     // HTML5 pattern 支持
@@ -209,7 +211,7 @@
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
-    var async, aorb, type, val, commonArgs
+    var async, aorb, type, val, commonArgs, event
 
     // 把当前元素放到 patterns 对象中备用
     patterns.$item = $item;
@@ -276,7 +278,7 @@
     })[0];
 
     if(!obj) return;
-    index = unvalidFields.indexOf(obj);
+    index = $.inArray(obj, unvalidFields);
     unvalidFields.splice(index, 1);
     return unvalidFields;
   }
