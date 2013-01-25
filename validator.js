@@ -21,14 +21,14 @@
 
     // 仅支持 8 种类型的 day
     // 20120409 | 2012-04-09 | 2012/04/09 | 2012.04.09 | 以上各种无 0 的状况
-    date: function (text) {
-      var reg = /^([1-2]\d{3})([-/.])?(1[0-2]|0?[1-9])([-/.])?([1-2]\d|3[01]|0?[1-9])$/
+    date: function(text){
+      var reg = /^([1-2]\d{3})(?:[-\/.])?(1[0-2]|0?[1-9])(?:[-\/.])?([1-2]\d|3[01]|0?[1-9])$/
         , taste, d;
 
       if (!reg.test(text)) return false;
 
       taste = reg.exec(text);
-      year = +taste[1], month = +taste[3] - 1, day = +taste[5];
+      year = +taste[1], month = +taste[2] - 1, day = +taste[3];
       d = new Date(year, month, day);
 
       return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
