@@ -338,13 +338,12 @@
     // 提交校验
     $form.on('submit', function(e){
 
-        e.preventDefault();
-
       before.call(this, $items);
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 
       // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-      return after.call(this, $items) && unvalidFields.length === 0 ? true : e.preventDefault(), errorCallback.call(this, unvalidFields);
+      return after.call(this, $items) && unvalidFields.length ? 
+        (e.preventDefault(), errorCallback.call(this, unvalidFields)) : true;
     })
 
   }
