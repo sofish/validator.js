@@ -97,12 +97,16 @@
     password: function(text){
       return this.text(text);
     },
+    
+    checkbox: function() {
+      return patterns.radio(1);
+    },
 
     // radio 根据当前 radio 的 name 属性获取元素，只要 name 相同的这几个元素中有一个 checked，则验证难过
     radio: function(){
       // TODO: a better way?!
       var form = this.$item.parents('form').eq(0)
-        , identifier = 'input:radio[name=' + this.$item.attr('name') + ']'
+        , identifier = 'input:' + (isCheckbox ? 'checkbox' : 'radio') + '[name=' + this.$item.attr('name') + ']'
         , result = false
 
       radios || (radios = $(identifier, form))
