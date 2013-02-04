@@ -223,7 +223,7 @@
     // 把当前元素放到 patterns 对象中备用
     patterns.$item = $item;
     type = $item.attr('type');
-    val = $item.val();
+    val = $item.val() || '';
 
     async = $item.data('url');
     aorb = $item.data('aorb');
