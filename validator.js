@@ -99,20 +99,23 @@
     },
     
     checkbox: function() {
-      return patterns.radio(1);
+      return patterns._checker('checkbox');
     },
 
     // radio 根据当前 radio 的 name 属性获取元素，只要 name 相同的这几个元素中有一个 checked，则验证难过
-    radio: function(){
+    radio: function(checkbox){
+      return patterns._checker('radio');
+    },
+
+    _checker: function(type) {
       // TODO: a better way?!
       var form = this.$item.parents('form').eq(0)
-        , identifier = 'input:' + (isCheckbox ? 'checkbox' : 'radio') + '[name=' + this.$item.attr('name') + ']'
+        , identifier = 'input:' + type + '[name=' + this.$item.attr('name') + ']'
         , result = false
-
-      radios || (radios = $(identifier, form))
+        , $items = $(identifier, form);
 
       // TODO: a faster way?!
-      radios.each(function(i, item){
+      $items.each(function(i, item){
         if(item.checked && !result) return result = true;
       })
 
@@ -346,8 +349,9 @@
       validateForm.call(this, $items, method, klass, isErrorOnParent);
 
       // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-      return after.call(this, $items) && unvalidFields.length ? 
-        (e.preventDefault(), errorCallback.call(this, unvalidFields)) : true;
+      return unvalidFields.length ?
+        (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
+        (after.call(this, $items), true);
     })
 
   }

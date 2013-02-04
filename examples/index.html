@@ -79,7 +79,7 @@
     <input type="submit" value="send"/>
 </form>
 
-<script type="text/javascript" src="../lib/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="../validator.js"></script>
 <script type="text/javascript">
     $('#form').validator({
@@ -88,7 +88,7 @@
               //console.log(item.$el[0])
             })
         }
-        //, isErrorOnParent: true
+        , isErrorOnParent: true
     });
 
   $('#event').on('before:hello', function(event, element){
