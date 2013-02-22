@@ -3,7 +3,7 @@
  * @copyright: MIT license */
 
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
- ~function ($) {
+~function ($) {
 
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
     , validateFields, radios, removeFromUnvalidFields, asyncValidate
@@ -97,7 +97,7 @@
     password: function(text){
       return this.text(text);
     },
-    
+
     checkbox: function() {
       return patterns._checker('checkbox');
     },
@@ -125,6 +125,7 @@
     // text[notEmpty] 表单项不为空
     // [type=text] 也会进这项
     text: function(text){
+
       var max = parseInt(this.$item.attr('maxlength'), 10)
         , noEmpty
 
@@ -151,8 +152,8 @@
       var message = isValidate ? 'IM VALIDED' : 'unvalid';
       return validateReturn.call(this, $item, klass, isErrorOnParent, message);
     }).error(function(){
-      // 异步错误，供调试用，理论上线上不应该继续运行
-    });
+        // 异步错误，供调试用，理论上线上不应该继续运行
+      });
   }
 
 
@@ -193,8 +194,8 @@
 
     // HTML5 pattern 支持
     message = message ? message :
-      pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
-      patterns[type](val) || 'unvalid';
+      pattern ? ((new RegExp(pattern)).test(val) || 'unvalid') :
+        patterns[type](val) || 'unvalid';
 
     // 返回的错误对象 = {
     //    $el: {jQuery Element Object} // 当前表单项
@@ -202,12 +203,13 @@
     //  , message: {String} // error message，只有两种值
     // }
     // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
+    if(message === 'unvalid') removeErrorClass($item, klass, parent);
     return /^(?:unvalid|empty)$/.test(message) ? (ret = {
-        $el: addErrorClass.call(this, $item, klass, parent)
+      $el: addErrorClass.call(this, $item, klass, parent, message)
       , type: type
       , error: message
     }, $item.trigger('after:' + event, $item), ret):
-    (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
+      (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
   }
 
   // 获取待校验的项
@@ -268,8 +270,8 @@
     if(method && !validateFields.length) return true;
 
     unvalidFields = $.map($fields, function(el){
-        var field = validate.call(null, $(el), klass, parent);
-        if(field) return field;
+      var field = validate.call(null, $(el), klass, parent);
+      if(field) return field;
     })
 
     return validateFields.length ? unvalidFields : false;
@@ -298,13 +300,13 @@
     return $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : $item;
   }
 
-  addErrorClass = function($item, klass, parent){
-    return errorElement($item, parent).addClass(klass)
+  addErrorClass = function($item, klass, parent, emptyClass){
+    return errorElement($item, parent).addClass(klass + ' ' + emptyClass);
   }
 
   removeErrorClass = function($item, klass, parent){
     removeFromUnvalidFields.call(this, $item);
-    return errorElement($item, parent).removeClass(klass)
+    return errorElement($item, parent).removeClass(klass + ' empty unvalid');
   }
 
   // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
@@ -355,4 +357,5 @@
     })
 
   }
+
 }(jQuery);
