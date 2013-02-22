@@ -184,7 +184,7 @@
     var pattern, type, val, ret, event
 
     pattern = $item.attr('pattern');
-    pattern.replace('\\', '\\\\');
+    pattern && pattern.replace('\\', '\\\\');
     type = $item.attr('type') || 'text';
     // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
     type = patterns[type] ? type : 'text';
@@ -192,7 +192,6 @@
     event = $item.data('event');
 
     // HTML5 pattern 支持
-    // TODO: new 出来的这个正则是否与浏览器一致？
     message = message ? message :
       pattern ? (new RegExp(pattern).test(val) || 'unvalid') :
       patterns[type](val) || 'unvalid';
