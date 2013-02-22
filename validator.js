@@ -184,6 +184,7 @@
     var pattern, type, val, ret, event
 
     pattern = $item.attr('pattern');
+    pattern.replace('\\', '\\\\');
     type = $item.attr('type') || 'text';
     // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
     type = patterns[type] ? type : 'text';
