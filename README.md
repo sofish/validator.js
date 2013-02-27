@@ -1,6 +1,6 @@
 # validator.js
 
-a simple but powerful validator for your web applications.
+一个简单、轻量级，但功能强大的 Validator 组件，并且可以方便扩展类型判断：
 
 - jQuery 插件，即插即用
 - 基于 HTML5 的 API 设计
@@ -20,7 +20,7 @@ options = {
   // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识
   identifie: {String},                                                 
 
-  // 校验不通过时错误时添加的 class 名（默认是 `error`）
+  // 校验不通过时错误时添加的 class 名（默认是 `error`），当校验为空时，还同时拥有 `empty` 这个 classname
   klass: {String},
 
   // 错误出现时 `klass` 放在当前表单项还是父节点（默认是当前表单项）
@@ -32,9 +32,8 @@ options = {
   // 出错时的 callback，第一个参数是所有出错表单项集合
   errorCallback(unvalidFields): {Function},
 
-  // TODO: 再考虑一下如何做比较合适
   before: {Function}, // 表单检验之前
-  after: {Function}, // 表单校验之后
+  after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
  }                                                                                                     
 ```
 
@@ -50,7 +49,7 @@ options = {
 
 注：type 的支持在 validator.js 中的 patterns 这个对象中。
 
-#### 1. 一般标记:
+#### 1. 一般标记
 
 在 html 标记上，一个需要验证的表单项，需要加上 `required` 属性，或者 `options.identifie` 中指定的选择器名。如：
 
@@ -61,7 +60,7 @@ options = {
 </select>
 ```
 
-#### 2. Checkbox & Radio:
+#### 2. Checkbox & Radio
 
 `input:checkbox` 默认不校验，`input:radio` 根据 name 属性来区分组别，也即当所有 `name='abc'` 的 radio 有一个被 checked，那么表示这一组 radio 通过验证：
 
@@ -71,7 +70,7 @@ options = {
 <label><input type="radio" required name="abc" value="C">[C]</label>
 ```
 
-#### 3. 异步支持:
+#### 3. 异步支持
 
 当需要异步验证时，在表单添加一个 data-url 的属性指定异步验证的 URL 那可，有几个可选的项：
 
@@ -87,6 +86,46 @@ html 标记如下：
 <input type="text" data-url="https://api.github.com/legacy/user/search/china" data-method="getJSON" required>
 ```
 
+#### 4. 二选一
+
+支持二选一，比如联系方式，座机和手机可以只填一项。HTML 的标记如下，在需要此功能的项添加 `data-aorb` 属性，指定 a 或者 b，顺序可以相反：
+
+```js
+<input data-aorb="a" >
+<input data-aorb="b" >
+```
+
+NOTE: 顺便说一句，实现多选一代码可以更简单一点，但问题在于这是个好设计吗？所以多想一下。
+
+#### 5. 支持自定义元素的事件
+
+可以在 html 中添加 `data-event` 以在单独的元素中触发自定义事件。假设我们设置一个 `hello` 事件，最终会触发在验证这个表单前触发 `before.hello` 事件，并且在验证完当前表单后触发一个 `after.hello` 事件。默认不触发任何事件：
+
+```html
+<input id="event" type="text" data-event="hello" required>
+```
+
+可以使用标准的 jQuery `on` 来监听这个事件：
+
+```js
+$('#event').on('before:hello', function(event, element){
+  alert('`before.hello` event trigger on $("#' + element.id + '")');
+})
+
+$('#event').on('after:hello', function(event, element){
+  alert('`after.hello` event trigger on $("#' + element.id + '")');
+})
+```
+#### 6. 支持在指定元素添加错误 class
+可以在 html 中添加 `data-parent` 用以指定需要添加错误 class 的元素，属性值为任意 jQuery 选择器支持的语法。例如一个表单被嵌套多层，可以通过在该表单上添加 `data-parent='div[name="test"].parent'` 来制定在距该表单最近的父级元素中 `name="test"` 并且 `class="parent"` 的 `div` 元素上添加错误 class。例：
+
+```html
+<div name="test" class="parent">
+	<p>
+		<input type="test" data-parent="div[name="test"].parent" required>
+	</p>
+</div>
+```
 
 ## 通用约定和代码规范：
 
@@ -104,4 +143,5 @@ html 标记如下：
 
 ## 贡献者
 
-TODO:...
+- __[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)
+- __[青花木木](https://github.com/zhanglin800)__: [http://zhanglin.org](http://zhanglin.org)

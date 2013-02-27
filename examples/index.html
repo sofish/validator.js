@@ -73,19 +73,31 @@
         <label><input type="radio" required name="abc" value="C">[C]</label>
     <p>
 
+  <p><label>Custom Event: <input id="event" type="text" data-event="hello" required></label>
+
     <p><textarea placeholder="some text" required data-error="textarea"></textarea></p>
     <input type="submit" value="send"/>
 </form>
 
-<script type="text/javascript" src="../lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="../validator.js"></script>
 <script type="text/javascript">
     $('#form').validator({
         errorCallback: function(unvalidFields){
-            console.log(unvalidFields);
-        },
-        isErrorOnParent: true
+            $(unvalidFields).each(function(i,item){
+              //console.log(item.$el[0])
+            })
+        }
+        , isErrorOnParent: true
     });
+
+  $('#event').on('before:hello', function(event, element){
+    //console.log('`before.hello` event trigger on $("#' + element.id + '")');
+  })
+
+  $('#event').on('after:hello', function(event, element){
+    //console.log('`after.hello` event trigger on $("#' + element.id + '")');
+  })
 </script>
 
 </body>
