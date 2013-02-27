@@ -58,6 +58,7 @@ options = {
 <select required>
   <option>...
 </select>
+<div contenteditable pattern="^\d+$"></div>
 ```
 
 #### 2. Checkbox & Radio
