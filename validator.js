@@ -346,7 +346,7 @@
 
     // 当用户聚焦到某个表单时去除错误提示
     $form.on('focusin', identifie, function(e) {
-      removeErrorClass.call(this, $(e.target), 'error unvalid empty', isErrorOnParent);
+      removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
     })
 
     // 提交校验
