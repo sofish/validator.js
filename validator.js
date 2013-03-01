@@ -264,7 +264,7 @@
     var reSpecialType = /^radio|checkbox/
       , field
     $.each($fields, function(i, f){
-      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change' : method, function(){
+      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change blur' : method, function(){
         // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
         var $items = $(this);
         if (reSpecialType.test(this.type)) {
