@@ -58,6 +58,7 @@ options = {
 <select required>
   <option>...
 </select>
+<div contenteditable pattern="^\d+$"></div>
 ```
 
 #### 2. Checkbox & Radio
@@ -143,5 +144,5 @@ $('#event').on('after:hello', function(event, element){
 
 ## 贡献者
 
-- __[Chris Yip](https://github.com/ChrisYip)__: [http://chris.gd/](http://chris.gd/)
+- __[Chris Yip](https://github.com/ChrisYip)__: [http://chrisyip.im/](http://chrisyip.im/)
 - __[青花木木](https://github.com/zhanglin800)__: [http://zhanglin.org](http://zhanglin.org)
