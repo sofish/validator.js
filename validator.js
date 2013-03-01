@@ -219,7 +219,7 @@
 
   // 获取待校验项的值
   getVal = function($item){
-    return $item.val() || ($item.get(0).hasAttribute('contenteditable') ? $item.text() : '');
+    return $item.val() || ($item.is('[contenteditable]') ? $item.text() : '');
   }
 
   // 校验一个表单项
