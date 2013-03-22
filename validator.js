@@ -261,11 +261,19 @@
   // 校验表单项
   validateFields = function($fields, method, klass, parent) {
     // TODO：坐成 delegate 的方式？
-    var field
+    var reSpecialType = /^radio|checkbox/
+      , field
     $.each($fields, function(i, f){
-      $(f).on(/^radio|checkbox/.test(f.type) || "SELECT" === f.tagName ? 'change' : method , function(){
+      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change blur' : method, function(){
         // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
-        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+        var $items = $(this);
+        if (reSpecialType.test(this.type)) {
+          $items = $('input[type=' + this.type + '][name=' + this.name + ']',
+                     $items.closest('form'));
+        }
+        $items.each(function(){
+          (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+        });
       })
     })
   }
