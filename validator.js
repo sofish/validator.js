@@ -110,7 +110,7 @@
     _checker: function(type) {
       // TODO: a better way?!
       var form = this.$item.parents('form').eq(0)
-        , identifier = 'input:' + type + '[name=' + this.$item.attr('name') + ']'
+        , identifier = 'input:' + type + '[name="' + this.$item.attr('name') + '"g]'
         , result = false
         , $items = $(identifier, form);
 
