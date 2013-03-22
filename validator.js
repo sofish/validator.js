@@ -6,7 +6,7 @@
 ~function ($) {
 
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
-    , validateFields, radios, removeFromUnvalidFields, asyncValidate
+    , validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
     , aorbValidate, validateReturn, unvalidFields = []
 
   // 类型判断
@@ -143,7 +143,7 @@
       , url = data['url']
       , method = data['method'] || 'get'
       , key = data['key'] || 'key'
-      , text = $item.val()
+      , text = getVal($item)
       , params = {}
 
     params[key] = text;
@@ -189,7 +189,7 @@
     type = $item.attr('type') || 'text';
     // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
     type = patterns[type] ? type : 'text';
-    val = $.trim($item.val());
+    val = $.trim(getVal($item));
     event = $item.data('event');
 
     // HTML5 pattern 支持
@@ -217,6 +217,11 @@
     return $(identifie, form);
   }
 
+  // 获取待校验项的值
+  getVal = function($item){
+    return $item.val() || ($item.is('[contenteditable]') ? $item.text() : '');
+  }
+
   // 校验一个表单项
   // 出错时返回一个对象，当前表单项和类型；通过时返回 false
   validate = function($item, klass, parent){
@@ -225,7 +230,7 @@
     // 把当前元素放到 patterns 对象中备用
     patterns.$item = $item;
     type = $item.attr('type');
-    val = $item.val() || '';
+    val = getVal($item);
 
     async = $item.data('url');
     aorb = $item.data('aorb');
@@ -256,11 +261,19 @@
   // 校验表单项
   validateFields = function($fields, method, klass, parent) {
     // TODO：坐成 delegate 的方式？
-    var field
+    var reSpecialType = /^radio|checkbox/
+      , field
     $.each($fields, function(i, f){
-      $(f).on(/^radio|checkbox/.test(f.type) || "SELECT" === f.tagName ? 'change' : method , function(){
+      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change blur' : method, function(){
         // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
-        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+        var $items = $(this);
+        if (reSpecialType.test(this.type)) {
+          $items = $('input[type=' + this.type + '][name=' + this.name + ']',
+                     $items.closest('form'));
+        }
+        $items.each(function(){
+          (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+        });
       })
     })
   }
