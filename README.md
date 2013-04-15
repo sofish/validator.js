@@ -6,6 +6,12 @@
 - 基于 HTML5 的 API 设计
 - 兼容主流浏览器，包括 IE 6+
 
+## 产上运行版本
+
+- 一行搞定：[iNews.io Register](http://inews.io/account/register)
+- 进阶使用：[百姓网发布表单](http://shanghai.baixing.com/fabu/ershouqiche)
+
+
 ## 使用方法
 
 ### 一、实例化
