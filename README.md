@@ -6,11 +6,12 @@
 - 基于 HTML5 的 API 设计
 - 兼容主流浏览器，包括 IE 6+
 
-## 产上运行版本
+> DEMO [form validator](http://sofish.github.io/validator.js/)
+
+## 线上运行版本
 
 - 一行搞定：[iNews.io Register](http://inews.io/account/register)
 - 进阶使用：[百姓网发布表单](http://shanghai.baixing.com/fabu/ershouqiche)
-
 
 ## 使用方法
 
@@ -142,7 +143,7 @@ $('#event').on('after:hello', function(event, element){
 
 ## 测试用例：
 
-使用 examples/index.php 这个文件
+使用 index.php 这个文件
 
 ## 许可协议
 
