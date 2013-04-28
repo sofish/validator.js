@@ -8,7 +8,7 @@
   body{padding: 30px;font-family:lucida grande;}
   label{display:block;width:180px}
   .error{border:2px solid #f36;}
-  [contenteditable]{border:1px solid gray;}
+  .editable{min-height:100px;_zoom:1;_height:100px;border:1px solid gray;}
   </style>
 </head>
 
@@ -80,16 +80,16 @@
 
   <p><label>Custom Event: <input id="event" type="text" data-event="hello" required></label>
 
-  <p><textarea placeholder="some text" required data-error="textarea"></textarea></p>
+  <p><textarea maxlength="20"  placeholder="some text" required data-error="textarea"></textarea></p>
 
   <p>Input email here:
   <div>
-    <div contenteditable required type="email"></div>
+    <div class="editable" contenteditable required type="email"></div>
   </div>
 
   <p>Input a number here:
   <div>
-    <div contenteditable required pattern="^\d+$"></div>
+    <div class="editable" contenteditable required pattern="^\d+$"></div>
   </div>
 
   <input type="submit" value="send"/>
