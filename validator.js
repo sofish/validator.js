@@ -340,40 +340,42 @@
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
   $.fn.validator = function(options) {
-    var $form = this
-      , options = options || {}
+    var options = options || {}
       , identifie = options.identifie || '[required]'
       , klass = options.error || 'error'
-      , isErrorOnParent = options.isErrorOnParent || false
+      , isErrorOnParent = !!options.isErrorOnParent
       , method = options.method || 'blur'
       , before = options.before || function() {return true;}
       , after = options.after || function() {return true;}
       , errorCallback = options.errorCallback || function(fields){}
-      , $items = fields(identifie, $form)
 
-    // 防止浏览器默认校验
-    novalidate($form);
+    return $(this).each(function(){
+      var $form = $(this)
+        , $items = fields(identifie, $form)
 
-    // 表单项校验
-    method && validateFields.call(this, $items, method, klass, isErrorOnParent);
+      // 防止浏览器默认校验
+      novalidate($form);
 
-    // 当用户聚焦到某个表单时去除错误提示
-    $form.on('focusin', identifie, function(e) {
-      removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
+      // 表单项校验
+      method && validateFields.call(this, $items, method, klass, isErrorOnParent);
+
+      // 当用户聚焦到某个表单时去除错误提示
+      $form.on('focusin', identifie, function(e) {
+        removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
+      })
+
+      // 提交校验
+      $form.on('submit', function(e){
+
+        before.call(this, $items);
+        validateForm.call(this, $items, method, klass, isErrorOnParent);
+
+        // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
+        return unvalidFields.length ?
+          (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
+          (after.call(this, e, $items) && true);
+      })
     })
-
-    // 提交校验
-    $form.on('submit', function(e){
-
-      before.call(this, $items);
-      validateForm.call(this, $items, method, klass, isErrorOnParent);
-
-      // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-      return unvalidFields.length ?
-        (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
-        (after.call(this, e, $items) && true);
-    })
-
   }
 
 }(jQuery);
