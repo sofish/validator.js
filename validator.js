@@ -386,6 +386,11 @@
         , isErrorOnParent = options.isErrorOnParent
         , method = options.method
 
+      if ($form.data('__validator__') === true) {
+        return;
+      }
+      $form.data('__validator__', true)
+
       // 保存选项
       $form.data('__options__', options)
 
