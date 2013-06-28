@@ -353,6 +353,11 @@
       var $form = $(this)
         , $items = fields(identifie, $form)
 
+      if ($form.data('__validator__') === true) {
+        return;
+      }
+      $form.data('__validator__', true)
+
       // 防止浏览器默认校验
       novalidate($form);
 
