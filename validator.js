@@ -14,8 +14,8 @@
     error: 'error',
     isErrorOnParent: false,
     method: 'blur',
-    before: function(){return !0},
-    after: function(){return !1},
+    before: function(){return true},
+    after: function(){return false},
     errorCallback: function(){}
   }
 
