@@ -20,12 +20,12 @@
 $('#form_id').validator(options);
 ```
 
-`validator` 方法支持一个 `options` 对象作为参数。当不传参数时，`options` 具备默认值。完整的对象如下描述：
+`validator` 方法支持一个 `options` 对象作为参数。当不传参数时，`options` 具备默认值。参数储存在 `$('').data('__options__')`。完整的对象如下描述：
 
 ```js
 options = {
   // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识
-  identifie: {String},                                                 
+  identifie: {String},
 
   // 校验不通过时错误时添加的 class 名（默认是 `error`），当校验为空时，还同时拥有 `empty` 这个 classname
   klass: {String},
@@ -41,10 +41,37 @@ options = {
 
   before: {Function}, // 表单检验之前
   after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
- }                                                                                                     
+ }
 ```
 
-### 二、HTML 标记
+### 二、验证表单
+```js
+$('#form_id').validate(); // or
+$('#form_id').validate(options);
+```
+
+`validate` 方式支持一个 `options` 对象作为参数，该参数只在调用时供__一次性__使用。当不传参数时，`options` 使用 `validator` 的参数作为默认值。完整的对象如下描述：
+
+```js
+options = {
+  // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识
+  identifie: {String},
+
+  // 校验不通过时错误时添加的 class 名（默认是 `error`），当校验为空时，还同时拥有 `empty` 这个 classname
+  klass: {String},
+
+  // 错误出现时 `klass` 放在当前表单项还是父节点（默认是当前表单项）
+  isErrorOnParent: {Boolean},
+
+  // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
+  method: {String | false},
+
+  // 出错时的 callback，第一个参数是所有出错表单项集合
+  errorCallback(unvalidFields): {Function},
+ }
+```
+
+### 三、HTML 标记
 
 目前 type 的类型支持 email/tel/url/range/number 等 HTML5 Form API 支持的类型，当 type 不存在，但为验证项时，则测试表单是否有空；当有标记 `maxLength` 的时候验证表单值的长度；当有 min/max 的时候和 `type=range` 一样验证当前值是否在 min/max 区间：`min <= value <= max`。
 
@@ -61,7 +88,7 @@ options = {
 在 html 标记上，一个需要验证的表单项，需要加上 `required` 属性，或者 `options.identifie` 中指定的选择器名。如：
 
 ```html
-<input type="email" required /> 
+<input type="email" required />
 <select required>
   <option>...
 </select>
