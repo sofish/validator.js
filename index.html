@@ -7,7 +7,7 @@
   <style type="text/css">
   body{padding: 30px;font-family:lucida grande;}
   label{display:block;width:180px}
-  .error{border:2px solid #f36;}
+  .error{border:2px solid #f36!important;}
   .editable{min-height:100px;_zoom:1;_height:100px;border:1px solid gray;}
   </style>
 </head>
@@ -93,6 +93,7 @@
   </div>
 
   <input type="submit" value="send"/>
+  <input id="validate-form" type="button" value="validate without submit" />
 </form>
 
 <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
@@ -113,6 +114,10 @@
 
   $('#event').on('after:hello', function(event, element){
     //console.log('`after.hello` event trigger on $("#' + element.id + '")');
+  })
+
+  $('#validate-form').on('click', function(){
+    $(this).closest('form').validate()
   })
 </script>
 
