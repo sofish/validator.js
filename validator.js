@@ -5,7 +5,7 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
 ~function ($) {
 
-  var defaultOptions, patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate
+  var defaultOptions, patterns, fields, errorElement, addErrorClass, removeErrorClass
     , validateForm, validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
     , aorbValidate, validateReturn, unvalidFields = []
 
@@ -332,11 +332,6 @@
     return errorElement($item, parent).removeClass(klass + ' empty unvalid');
   }
 
-  // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
-  novalidate = function($form){
-    return $form.attr('novalidate') || $form.attr('novalidate', 'true')
-  }
-
   // 验证表单元素是否正确，此接口用于非事件触发式验证
   // 参数 options 可选，用于覆盖原设置
   // 用法：$form.validate(options)
@@ -394,8 +389,8 @@
       // 保存选项
       $form.data('__options__', options)
 
-      // 防止浏览器默认校验
-      novalidate($form);
+      // 添加 `novalidate` 到 form 中，防止浏览器默认的校验（样式不一致并且太丑）
+      this.noValidate = true
 
       // 表单项校验
       method && validateFields.call(this, $items, method, klass, isErrorOnParent);
