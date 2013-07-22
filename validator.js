@@ -5,19 +5,9 @@
 // 约定：以 /\$\w+/ 表示的字符，比如 $item 表示的是一个 jQuery Object
 ~function ($) {
 
-  var defaultOptions, patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate
-    , validateForm, validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
+  var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
+    , validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
     , aorbValidate, validateReturn, unvalidFields = []
-
-  defaultOptions = {
-    identifie: '[required]',
-    error: 'error',
-    isErrorOnParent: false,
-    method: 'blur',
-    before: function(){return true},
-    after: function(){return false},
-    errorCallback: function(){}
-  }
 
   // 类型判断
   patterns = {
@@ -337,32 +327,6 @@
     return $form.attr('novalidate') || $form.attr('novalidate', 'true')
   }
 
-  // 验证表单元素是否正确，此接口用于非事件触发式验证
-  // 参数 options 可选，用于覆盖原设置
-  // 用法：$form.validate(options)
-  // 参数：options = {
-  //    identifie: {String}, // 需要校验的表单项，（默认是 `[required]`）
-  //    klass: {String}, // 校验不通过时错误时添加的 class 名（默认是 `error`）
-  //    isErrorOnParent: {Boolean} // 错误出现时 class 放在当前表单项还是（默认是 element 本身）
-  //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
-  //    errorCallback(unvalidFields): {Function}, // 出错时的 callback，第一个参数是出错的表单项集合
-  //  }
-  $.fn.validate = function(options) {
-    var $form = $(this)
-      , options = $.extend({}, defaultOptions, $form.data('__options__'), options || {})
-      , $items = fields(options.identifie, $form)
-
-    validateForm.call(this, $items, options.method, options.error, options.isErrorOnParent)
-
-    if (unvalidFields.length > 0) {
-      options.errorCallback.call(this, unvalidFields)
-      // 如果验证未通过，返回不通过的元素，使用 concat 防止外部修改原始数组
-      return [].concat(unvalidFields);
-    }
-
-    return true;
-  }
-
   // 真正的操作逻辑开始，yayayayayayaya!
   // 用法：$form.validator(options)
   // 参数：options = {
@@ -376,45 +340,40 @@
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
   $.fn.validator = function(options) {
-    var options = $.extend({}, defaultOptions, options)
+    var $form = this
+      , options = options || {}
+      , identifie = options.identifie || '[required]'
+      , klass = options.error || 'error'
+      , isErrorOnParent = options.isErrorOnParent || false
+      , method = options.method || 'blur'
+      , before = options.before || function() {return true;}
+      , after = options.after || function() {return true;}
+      , errorCallback = options.errorCallback || function(fields){}
+      , $items = fields(identifie, $form)
 
-    return $(this).each(function(){
-      var $form = $(this)
-        , identifie = options.identifie
-        , $items = fields(identifie, $form)
-        , klass = options.error
-        , isErrorOnParent = options.isErrorOnParent
-        , method = options.method
+    // 防止浏览器默认校验
+    novalidate($form);
 
-      if ($form.data('__validator__') === true) {
-        return;
-      }
-      $form.data('__validator__', true)
+    // 表单项校验
+    method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 
-      // 保存选项
-      $form.data('__options__', options)
-
-      // 防止浏览器默认校验
-      novalidate($form);
-
-      // 表单项校验
-      method && validateFields.call(this, $items, method, klass, isErrorOnParent);
-
-      // 当用户聚焦到某个表单时去除错误提示
-      $form.on('focusin', identifie, function(e) {
-        removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
-      })
-
-      // 提交校验
-      $form.on('submit', function(e){
-        options.before.call(this, $items)
-
-        return $(this).validate() ?
-          // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-          (options.after.call(this, e, $items) && true) :
-          e.preventDefault();
-      })
+    // 当用户聚焦到某个表单时去除错误提示
+    $form.on('focusin', identifie, function(e) {
+      removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
     })
+
+    // 提交校验
+    $form.on('submit', function(e){
+
+      before.call(this, $items);
+      validateForm.call(this, $items, method, klass, isErrorOnParent);
+
+      // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
+      return unvalidFields.length ?
+        (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
+        (after.call(this, e, $items) && true);
+    })
+
   }
 
 }(jQuery);
