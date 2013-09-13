@@ -247,7 +247,7 @@
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
     if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
       return validateReturn.call(this, $item, klass, parent,
-			  $item.is('[required]') ? 'empty' : '');
+        $item.is('[required]') ? 'empty' : '');
 
     // 二选一验证：有可能为空
     if(aorb) return aorbValidate.apply(this, commonArgs);
