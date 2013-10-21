@@ -78,7 +78,7 @@
     url: function(text){
       var protocols = '((https?|s?ftp|irc[6s]?|git|afp|telnet|smb):\\/\\/)?'
         , userInfo = '([a-z0-9]\\w*(\\:[\\S]+)?\\@)?'
-        , domain = '([a-z0-9]([\\w]*[a-z0-9])*\\.)?[a-z0-9]\\w*\\.[a-z]{2,}(\\.[a-z]{2,})?'
+        , domain = '(?:[a-z0-9]+(?:\-[\w]+)*\.)*[a-z]{2,}'
         , port = '(:\\d{1,5})?'
         , ip = '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
         , address = '(\\/\\S*)?'
