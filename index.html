@@ -93,7 +93,6 @@
   </div>
 
   <input type="submit" value="send"/>
-  <input id="validate-form" type="button" value="validate without submit" />
 </form>
 
 <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
@@ -114,10 +113,6 @@
 
   $('#event').on('after:hello', function(event, element){
     //console.log('`after.hello` event trigger on $("#' + element.id + '")');
-  })
-
-  $('#validate-form').on('click', function(){
-    $(this).closest('form').validate()
   })
 </script>
 
