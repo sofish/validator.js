@@ -330,7 +330,7 @@
   // 真正的操作逻辑开始，yayayayayayaya!
   // 用法：$form.validator(options)
   // 参数：options = {
-  //    identifie: {String}, // 需要校验的表单项，（默认是 `[required]`）
+  //    identifier: {String}, // 需要校验的表单项，（默认是 `[required]`）
   //    klass: {String}, // 校验不通过时错误时添加的 class 名（默认是 `error`）
   //    isErrorOnParent: {Boolean} // 错误出现时 class 放在当前表单项还是（默认是 element 本身）
   //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
@@ -341,7 +341,7 @@
   //  }
   $.fn.validator = function(options) {
     var options = options || {}
-      , identifie = options.identifie || '[required]'
+      , identifier = options.identifier || '[required]'
       , klass = options.error || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
@@ -351,7 +351,7 @@
 
     this.each(function(){
       var $form = $(this)
-        , $items = fields(identifie, $form)
+        , $items = fields(identifier, $form)
 
       // 防止浏览器默认校验
       novalidate($form);
@@ -360,7 +360,7 @@
       method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 
       // 当用户聚焦到某个表单时去除错误提示
-      $form.on('focusin', identifie, function(e) {
+      $form.on('focusin', identifier, function(e) {
         removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
       })
 
