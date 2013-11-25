@@ -327,10 +327,9 @@
     return $form.attr('novalidate') || $form.attr('novalidate', 'true')
   }
 
-  // 真正的操作逻辑开始，yayayayayayaya!
   // 用法：$form.validator(options)
   // 参数：options = {
-  //    identifie: {String}, // 需要校验的表单项，（默认是 `[required]`）
+  //    identifier: {String}, // 需要校验的表单项，（默认是 `[required]`）
   //    klass: {String}, // 校验不通过时错误时添加的 class 名（默认是 `error`）
   //    isErrorOnParent: {Boolean} // 错误出现时 class 放在当前表单项还是（默认是 element 本身）
   //    method: {String | false}, // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
@@ -340,38 +339,48 @@
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
   $.fn.validator = function(options) {
-    var $form = this
-      , options = options || {}
-      , identifie = options.identifie || '[required]'
+    var options = options || {}
+      , identifier = options.identifier || '[required]'
       , klass = options.error || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
       , before = options.before || function() {return true;}
       , after = options.after || function() {return true;}
       , errorCallback = options.errorCallback || function(fields){}
-      , $items = fields(identifie, $form)
 
-    // 防止浏览器默认校验
-    novalidate($form);
+    this.each(function(){
+      var $form = $(this)
+        , $items = fields(identifier, $form)
 
-    // 表单项校验
-    method && validateFields.call(this, $items, method, klass, isErrorOnParent);
+      // 防止浏览器默认校验
+      novalidate($form);
 
-    // 当用户聚焦到某个表单时去除错误提示
-    $form.on('focusin', identifie, function(e) {
-      removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
-    })
+      // 表单项校验
+      method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 
-    // 提交校验
-    $form.on('submit', function(e){
+      // 当用户聚焦到某个表单时去除错误提示
+      $form.on('focusin', identifier, function(e) {
+        removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
+      })
 
-      before.call(this, $items);
-      validateForm.call(this, $items, method, klass, isErrorOnParent);
+      // 提交校验
+      $form.on('submit', function(e){
 
-      // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-      return unvalidFields.length ?
-        (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
-        (after.call(this, e, $items) && true);
+        before.call(this, $items);
+        validateForm.call(this, $items, method, klass, isErrorOnParent);
+
+        // 当有未通过验证的表单项时阻止其他 submit 事件触发
+        // 当有两个或以上的 submit 存在时, 阻止当前 submit 事件的默认行为
+        // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
+        if (unvalidFields.length) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return errorCallback.call(this, unvalidFields);
+        } else {
+          if ($._data($form[0], "events").submit.length > 1) e.preventDefault();
+          return after.call(this, e, $items) && true;
+        }
+      })
     })
 
   }
