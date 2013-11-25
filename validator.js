@@ -369,10 +369,17 @@
         before.call(this, $items);
         validateForm.call(this, $items, method, klass, isErrorOnParent);
 
+        // 当有未通过验证的表单项时阻止其他 submit 事件触发
+        // 当有两个或以上的 submit 存在时, 阻止当前 submit 事件的默认行为
         // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
-        return unvalidFields.length ?
-          (e.preventDefault(), e.stopImmediatePropagation(), errorCallback.call(this, unvalidFields)) :
-          (after.call(this, e, $items) && true);
+        if (unvalidFields.length) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          return errorCallback.call(this, unvalidFields);
+        } else {
+          if ($._data($form[0], "events").submit.length > 1) e.preventDefault();
+          return after.call(this, e, $items) && true;
+        }
       })
     })
 
