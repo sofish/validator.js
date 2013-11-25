@@ -327,7 +327,6 @@
     return $form.attr('novalidate') || $form.attr('novalidate', 'true')
   }
 
-  // 真正的操作逻辑开始，yayayayayayaya!
   // 用法：$form.validator(options)
   // 参数：options = {
   //    identifier: {String}, // 需要校验的表单项，（默认是 `[required]`）
