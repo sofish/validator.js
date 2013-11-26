@@ -49,7 +49,7 @@
     number: function(text){
       var min = +this.$item.attr('min')
         , max = +this.$item.attr('max')
-        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text)
+        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d+)?$/.test(text)
         , text = +text
         , step = +this.$item.attr('step');
 
