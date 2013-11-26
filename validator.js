@@ -371,7 +371,7 @@
       // 当指定 options.after 的时候，只有当 after 返回 true 表单才会提交
       return unvalidFields.length ?
         (e.preventDefault(), errorCallback.call(this, unvalidFields)) :
-        (after.call(this, e, $items) && true);
+        after.call(this, e, $items);
     })
 
   }
