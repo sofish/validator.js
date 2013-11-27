@@ -107,6 +107,11 @@
     , isErrorOnParent: true
   });
 
+  $('#form').on('submit', function(event){
+    event.preventDefault();
+    alert("submitted!");
+  })
+
   $('#event').on('before:hello', function(event, element){
     //console.log('`before.hello` event trigger on $("#' + element.id + '")');
   })
