@@ -127,7 +127,7 @@
     text: function(text){
 
       var max = parseInt(this.$item.attr('maxlength'), 10)
-        , noEmpty
+        , notEmpty
 
       notEmpty = function(text){
         return !!text.length && !/^\s+$/.test(text)
