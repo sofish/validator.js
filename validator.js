@@ -245,8 +245,9 @@
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
-    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
-      return validateReturn.call(this, $item, klass, parent, 'empty')
+    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val)){
+      return !!$item.attr("required") ? validateReturn.call(this, $item, klass, parent, 'empty') : true
+    }
 
     // 二选一验证：有可能为空
     if(aorb) return aorbValidate.apply(this, commonArgs);
