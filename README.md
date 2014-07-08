@@ -81,6 +81,12 @@ options = {
 <input type="email" pattern="参照 HTML5 规范的正则表达式" />
 ```
 
+目前也扩展了特殊的type类型IDCard(身份证号码)的验证：
+
+```html
+<input type="IDCard" required />
+```
+
 注：type 的支持在 validator.js 中的 patterns 这个对象中。
 
 #### 1. 一般标记

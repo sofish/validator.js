@@ -93,6 +93,25 @@
       return validate(domainType) || validate(ipType);
     },
 
+    // 身份证号码验证
+    // 算法遵循 中华人民共和国国家标准 GB 11643-1999的身份证号码要求
+    IDCard: function(text){
+      var result = false;
+      if ((/^\d{15}$/).test(text)) {
+        result = true;
+      } else if ((/^\d{17}[0-9xX]$/).test(text)) {
+        var verifyCode = "1,0,x,9,8,7,6,5,4,3,2".split(",")
+          , Wi = "7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2".split(",") 
+          , IDNumbers = text.toLowerCase().split("")
+          , temp = 0;
+        for (var i = 0; i < 17; i++) {
+          temp += Wi[i] * IDNumbers[i];
+        }
+        result = (verifyCode[temp % 11] === IDNumbers[17]);
+      }   
+      return result; 
+    },    
+
     // 密码项目前只是不为空就 ok，可以自定义
     password: function(text){
       return this.text(text);
