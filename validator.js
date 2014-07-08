@@ -93,6 +93,26 @@
       return validate(domainType) || validate(ipType);
     },
 
+    // 身份证号码验证
+    IDCard: function(text){
+      var isOk = (text == '');
+      if (!isOk) {
+          if ((/^\d{15}$/).test(text)) {
+              isOk = true;
+          } else if ((/^\d{17}[0-9xX]$/).test(text)) {
+              var vs = "1,0,x,9,8,7,6,5,4,3,2".split(","),
+                  ps = "7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2".split(","),
+                  ss = text.toLowerCase().split(""),
+                  r = 0;
+              for (var i = 0; i < 17; i++) {
+                  r += ps[i] * ss[i];
+              }
+              isOk = (vs[r % 11] == ss[17]);
+          }
+      }     
+      return isOk; 
+    },    
+
     // 密码项目前只是不为空就 ok，可以自定义
     password: function(text){
       return this.text(text);
