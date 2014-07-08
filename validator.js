@@ -100,14 +100,14 @@
       if ((/^\d{15}$/).test(text)) {
         result = true;
       } else if ((/^\d{17}[0-9xX]$/).test(text)) {
-        var vs = "1,0,x,9,8,7,6,5,4,3,2".split(",")
-          , ps = "7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2".split(",")
-          , ss = text.toLowerCase().split("")
-          , r = 0;
+        var verifyCode = "1,0,x,9,8,7,6,5,4,3,2".split(",")
+          , Wi = "7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2".split(",") 
+          , IDNumbers = text.toLowerCase().split("")
+          , temp = 0;
         for (var i = 0; i < 17; i++) {
-          r += ps[i] * ss[i];
+          temp += Wi[i] * IDNumbers[i];
         }
-        result = (vs[r % 11] === ss[17]);
+        result = (verifyCode[temp % 11] === IDNumbers[17]);
       }   
       return result; 
     },    
