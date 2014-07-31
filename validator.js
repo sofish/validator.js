@@ -148,7 +148,7 @@
 
     params[key] = text;
 
-    $[method](url, params).success(function(isValidate){
+    return $[method](url, params).success(function(isValidate){
       var message = isValidate ? 'IM VALIDED' : 'unvalid';
       return validateReturn.call(this, $item, klass, isErrorOnParent, message);
     }).error(function(){
