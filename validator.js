@@ -6,8 +6,8 @@
 ~function ($) {
 
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
-    , validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
-    , aorbValidate, validateReturn, unvalidFields = []
+    , validate, validateFields, removeFromUnvalidFields, asyncValidate, getVal
+    , aorbValidate, validateReturn, unvalidFields = [];
 
   // 类型判断
   patterns = {
@@ -23,12 +23,16 @@
     // 20120409 | 2012-04-09 | 2012/04/09 | 2012.04.09 | 以上各种无 0 的状况
     date: function (text) {
       var reg = /^([1-2]\d{3})([-/.])?(1[0-2]|0?[1-9])([-/.])?([1-2]\d|3[01]|0?[1-9])$/
-        , taste, d;
+        , taste, d, year, month, day;
 
-      if (!reg.test(text)) return false;
+      if (!reg.test(text)) {
+        return false;
+      }
 
       taste = reg.exec(text);
-      year = +taste[1], month = +taste[3] - 1, day = +taste[5];
+      year = +taste[1];
+      month = +taste[3] - 1;
+      day = +taste[5];
       d = new Date(year, month, day);
 
       return year === d.getFullYear() && month === d.getMonth() && day === d.getDate();
@@ -46,11 +50,11 @@
       return /^(?:(?:0\d{2,3}[- ]?[1-9]\d{6,7})|(?:[48]00[- ]?[1-9]\d{6}))$/.test(text);
     },
 
-    number: function(text){
+    number: function (input) {
       var min = +this.$item.attr('min')
         , max = +this.$item.attr('max')
-        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d+)?$/.test(text)
-        , text = +text
+        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d+)?$/.test(input)
+        , text = +input
         , step = +this.$item.attr('step');
 
       // ignore invalid range silently
@@ -63,7 +67,7 @@
     },
 
     // 判断是否在 min / max 之间
-    range: function(text){
+    range: function (text) {
       return this.number(text);
     },
 
@@ -78,7 +82,7 @@
     url: function(text){
       var protocols = '((https?|s?ftp|irc[6s]?|git|afp|telnet|smb):\\/\\/)?'
         , userInfo = '([a-z0-9]\\w*(\\:[\\S]+)?\\@)?'
-        , domain = '(?:[a-z0-9]+(?:\-[\w]+)*\.)*[a-z]{2,}'
+        , domain = '(?:[a-z0-9]+(?:\\-[\\w]+)*\\.)*[a-z]{2,}'
         , port = '(:\\d{1,5})?'
         , ip = '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
         , address = '(\\/\\S*)?'
@@ -103,7 +107,7 @@
     },
 
     // radio 根据当前 radio 的 name 属性获取元素，只要 name 相同的这几个元素中有一个 checked，则验证难过
-    radio: function(checkbox){
+    radio: function(){
       return patterns._checker('radio');
     },
 
@@ -116,7 +120,9 @@
 
       // TODO: a faster way?!
       $items.each(function(i, item){
-        if(item.checked && !result) return result = true;
+        if(item.checked && !result) {
+          return (result = true);
+        }
       })
 
       return result;
@@ -127,7 +133,7 @@
     text: function(text){
 
       var max = parseInt(this.$item.attr('maxlength'), 10)
-        , noEmpty
+        , notEmpty;
 
       notEmpty = function(text){
         return !!text.length && !/^\s+$/.test(text)
@@ -140,9 +146,9 @@
   // 异步验证
   asyncValidate = function($item, klass, isErrorOnParent){
     var data = $item.data()
-      , url = data['url']
-      , method = data['method'] || 'get'
-      , key = data['key'] || 'key'
+      , url = data.url
+      , method = data.method || 'get'
+      , key = data.key || 'key'
       , text = getVal($item)
       , params = {}
 
@@ -180,7 +186,9 @@
   // 验证后的返回值
   validateReturn = function($item, klass, parent, message){
 
-    if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
+    if(!$item) {
+      return 'DONT VALIDATE UNEXIST ELEMENT';
+    }
 
     var pattern, type, val, ret, event
 
@@ -203,7 +211,10 @@
     //  , message: {String} // error message，只有两种值
     // }
     // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
-    if(message === 'unvalid') removeErrorClass($item, klass, parent);
+    if (message === 'unvalid') {
+      removeErrorClass($item, klass, parent);
+    }
+
     return /^(?:unvalid|empty)$/.test(message) ? (ret = {
       $el: addErrorClass.call(this, $item, klass, parent, message)
       , type: type
@@ -245,14 +256,19 @@
     // 所有都最先测试是不是 empty，checkbox 是可以有值
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
-    if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val))
-      return validateReturn.call(this, $item, klass, parent, 'empty')
+    if (!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns.text(val)) {
+      return validateReturn.call(this, $item, klass, parent, 'empty');
+    }
 
     // 二选一验证：有可能为空
-    if(aorb) return aorbValidate.apply(this, commonArgs);
+    if (aorb) {
+      return aorbValidate.apply(this, commonArgs);
+    }
 
     // 异步验证则不进行普通验证
-    if(async) return asyncValidate.apply(this, commonArgs);
+    if (async) {
+      return asyncValidate.apply(this, commonArgs);
+    }
 
     // 正常验证返回值
     return validateReturn.call(this, $item, klass, parent);
@@ -264,7 +280,7 @@
     var reSpecialType = /^radio|checkbox/
       , field
     $.each($fields, function(i, f){
-      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change blur' : method, function(){
+      $(f).on(reSpecialType.test(f.type) || 'SELECT' === f.tagName ? 'change blur' : method, function(){
         // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
         var $items = $(this);
         if (reSpecialType.test(this.type)) {
@@ -280,11 +296,15 @@
 
   // 校验表单：表单通过时返回 false，不然返回所有出错的对象
   validateForm = function ($fields, method, klass, parent) {
-    if(method && !validateFields.length) return true;
+    if (method && !validateFields.length) {
+      return true;
+    }
 
     unvalidFields = $.map($fields, function(el){
       var field = validate.call(null, $(el), klass, parent);
-      if(field) return field;
+      if (field) {
+        return field;
+      }
     })
 
     return validateFields.length ? unvalidFields : false;
@@ -296,10 +316,12 @@
 
     // 从 unvalidFields 中删除
     obj = $.grep(unvalidFields, function(item) {
-      return item['$el'] = $item;
+      return (item.$el = $item);
     })[0];
 
-    if(!obj) return;
+    if(!obj) {
+      return;
+    }
     index = $.inArray(obj, unvalidFields);
     unvalidFields.splice(index, 1);
     return unvalidFields;
@@ -339,16 +361,16 @@
   //    before: {Function}, // 表单检验之前
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
-  $.fn.validator = function(options) {
+  $.fn.validator = function(_options) {
     var $form = this
-      , options = options || {}
+      , options = _options || {}
       , identifie = options.identifie || '[required]'
       , klass = options.error || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
       , before = options.before || function() {return true;}
       , after = options.after || function() {return true;}
-      , errorCallback = options.errorCallback || function(fields){}
+      , errorCallback = options.errorCallback || function(){}
       , $items = fields(identifie, $form)
 
     // 防止浏览器默认校验
@@ -358,7 +380,7 @@
     method && validateFields.call(this, $items, method, klass, isErrorOnParent);
 
     // 当用户聚焦到某个表单时去除错误提示
-    $form.on('focusin', identifie, function(e) {
+    $form.on('focusin', identifie, function(){
       removeErrorClass.call(this, $(this), 'error unvalid empty', isErrorOnParent);
     })
 
