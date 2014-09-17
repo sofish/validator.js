@@ -1,0 +1,29 @@
+{
+  "name": "validator.js",
+  "description": "A simple validator for your web applications",
+  "license": "MIT",
+  "authors": [
+    "Sofish Lin <sofish@icloud.com>",
+    "Chris Yip <i@chrisyip.im>",
+    "青花木木: <https://github.com/zhanglin800>"
+  ],
+  "keywords": [
+    "js",
+    "zepto",
+    "jquery",
+    "validate",
+    "validator",
+    "validation",
+    "form"
+  ],
+  "main": [
+    "validator.js",
+    "dist/validator.min.js",
+    "dist/validator.min.js.map"
+  ],
+  "ignore": [
+    ".*",
+    "examples/",
+    "test/"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "curly": true,
+  "eqeqeq": false,
+  "eqnull": true,
+  "forin": true,
+  "indent": 2,
+  "latedef": "nofunc",
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonbsp": true,
+  "quotmark": "single",
+  "undef": true,
+  "unused": true,
+  "trailing": true,
+
+  "asi": true,
+  "eqnull": true,
+  "expr": true,
+  "laxcomma": true,
+
+  "browser": true
+}
