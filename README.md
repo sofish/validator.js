@@ -2,9 +2,11 @@
 
 一个简单、轻量级，但功能强大的 Validator 组件，并且可以方便扩展类型判断：
 
-- jQuery 插件，即插即用
+- jQuery / Zepto 插件，即插即用 (若同时存在 jQuery 和 Zepto，将以插件执行时，优先作用于 jQuery) *
 - 基于 HTML5 的 API 设计
 - 兼容主流浏览器，包括 IE 6+
+
+* jQuery (1.8.3、1.11.1)、Zepto (1.1.3) tested
 
 > DEMO [form validator](http://sofish.github.io/validator.js/)
 
