@@ -75,7 +75,7 @@ options = {
 
 ### 三、HTML 标记
 
-目前 type 的类型支持 email/tel/url/range/number 等 HTML5 Form API 支持的类型，当 type 不存在，但为验证项时，则测试表单是否有空；当有标记 `maxLength` 的时候验证表单值的长度；当有 min/max 的时候和 `type=range` 一样验证当前值是否在 min/max 区间：`min <= value <= max`。
+目前 type 的类型支持 email/tel/url/range/number 等 HTML5 Form API 支持的类型，当 type 不存在，但为验证项时，则测试表单是否有空；当有标记 `maxlength/minlength` 的时候验证表单值的长度；当有 min/max 的时候和 `type=range` 一样验证当前值是否在 min/max 区间：`min <= value <= max`。
 
 同时，如果表单存在 pattern 属性，则不使用 type 作为验证，保持与 HTML5 API 一致，可以作为一种表单自定义验证的方式。比如下面这个表项，将不按 type="email" 来验证，而是使用 pattern 中的正则表达式来验证：
 
