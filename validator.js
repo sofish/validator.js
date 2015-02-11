@@ -81,23 +81,22 @@
     // afp over TCP/IP: afp://[<user>@]<host>[:<port>][/[<path>]]
     // telnet://<user>:<password>@<host>[:<port>/]
     // smb://[<user>@]<host>[:<port>][/[<path>]][?<param1>=<value1>[;<param2>=<value2>]]
-    url: function (text) {
+    url: (function () {
       var protocols = '((https?|s?ftp|irc[6s]?|git|afp|telnet|smb):\\/\\/)?'
         , userInfo = '([a-z0-9]\\w*(\\:[\\S]+)?\\@)?'
-        , domain = '(?:[a-z0-9]+(?:\\-[\\w]+)*\\.)*[a-z]{2,}'
+        , domain = '(?:localhost|(?:[a-z0-9]+(?:[-\\w]*[a-z0-9])?(?:\\.[a-z0-9][-\\w]*[a-z0-9])*)*\\.[a-z]{2,})'
         , port = '(:\\d{1,5})?'
         , ip = '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'
         , address = '(\\/\\S*)?'
         , domainType = [protocols, userInfo, domain, port, address]
         , ipType = [protocols, userInfo, ip, port, address]
-        , validate
+        , rDomain = new RegExp('^' + domainType.join('') + '$', 'i')
+        , rIP = new RegExp('^' + ipType.join('') + '$', 'i')
 
-      validate = function (type) {
-        return new RegExp('^' + type.join('') + '$', 'i').test(text)
+      return function (text) {
+        return rDomain.test(text) || rIP.test(text)
       }
-
-      return validate(domainType) || validate(ipType)
-    },
+    })(),
 
     // 密码项目前只是不为空就 ok，可以自定义
     password: function (text) {
