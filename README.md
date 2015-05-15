@@ -48,11 +48,11 @@ options = {
 
 ### 二、验证表单
 ```js
-$('#form_id').validate(); // or
-$('#form_id').validate(options);
+$('#form_id').validator(); // or
+$('#form_id').validator(options);
 ```
 
-`validate` 方式支持一个 `options` 对象作为参数，该参数只在调用时供__一次性__使用。当不传参数时，`options` 使用 `validator` 的参数作为默认值。完整的对象如下描述：
+`validator` 方式支持一个 `options` 对象作为参数，该参数只在调用时供__一次性__使用。当不传参数时，`options` 使用 `validator` 的参数作为默认值。完整的对象如下描述：
 
 ```js
 options = {
