@@ -377,7 +377,7 @@
       , identifie = options.identifie || '[required]'
       , klass = options.error || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
-      , method = options.method || 'blur'
+      , method = (typeof options.method === "undefined" && 'blur') || options.method
       , before = options.before || function() {return true;}
       , after = options.after || function() {return true;}
       , errorCallback = options.errorCallback || function(){}
