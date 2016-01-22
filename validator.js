@@ -375,7 +375,7 @@
     var $form = this
       , options = _options || {}
       , identifie = options.identifie || '[required]'
-      , klass = options.error || 'error'
+      , klass = options.klass || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
       , before = options.before || function() {return true;}
