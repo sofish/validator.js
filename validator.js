@@ -203,13 +203,13 @@
     //  , message: {String} // error message，只有两种值
     // }
     // NOTE: 把 jQuery Object 传到 trigger 方法中作为参数，会变成原生的 DOM Object
-    if(message === 'unvalid') removeErrorClass($item, klass, parent);
+    if(message === 'unvalid') (removeErrorClass($item, klass, parent), removeSuccessClass($item, parent));
     return /^(?:unvalid|empty)$/.test(message) ? (ret = {
       $el: addErrorClass.call(this, $item, klass, parent, message)
       , type: type
       , error: message
     }, $item.trigger('after:' + event, $item), ret):
-      (removeErrorClass.call(this, $item, klass, parent), $item.trigger('after:' + event, $item), false);
+      (removeErrorClass.call(this, $item, klass, parent), addSuccessClass.call(this, $item, parent), $item.trigger('after:' + event, $item), false);
   }
 
   // 获取待校验的项
@@ -314,7 +314,16 @@
     return $item.data('parent') ? $item.closest($item.data('parent')) : parent ? $item.parent() : $item;
   }
 
+  addSuccessClass = function($item, parent) {
+    return errorElement($item, parent).addClass("success");
+  }
+
+  removeSuccessClass = function($item, parent) {
+    return errorElement($item, parent).removeClass("success");
+  }
+
   addErrorClass = function($item, klass, parent, emptyClass){
+    removeSuccessClass($item, parent);
     return errorElement($item, parent).addClass(klass + ' ' + emptyClass);
   }
 
