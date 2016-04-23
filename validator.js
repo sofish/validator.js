@@ -9,6 +9,16 @@
     , validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
     , aorbValidate, validateReturn, unvalidFields = []
 
+  window.FormValidator = {
+    unRegisterPattern: function (name) {
+      delete patterns[String(name)];
+    },
+
+    registerPattern: function (name, fn) {
+      patterns[String(name)] = fn;
+    }
+  }
+
   // 类型判断
   patterns = {
 
@@ -186,7 +196,7 @@
 
     pattern = $item.attr('pattern');
     pattern && pattern.replace('\\', '\\\\');
-    type = $item.attr('type') || 'text';
+    type = $item.data('pattern') || $item.attr('type') || 'text';
     // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
     type = patterns[type] ? type : 'text';
     val = $.trim(getVal($item));
@@ -195,7 +205,7 @@
     // HTML5 pattern 支持
     message = message ? message :
       pattern ? ((new RegExp(pattern)).test(val) || 'unvalid') :
-        patterns[type](val) || 'unvalid';
+        patterns[type](val, $item) || 'unvalid';
 
     // 返回的错误对象 = {
     //    $el: {jQuery Element Object} // 当前表单项
@@ -392,7 +402,6 @@
         }
       })
     })
-
   }
 
 }(jQuery);

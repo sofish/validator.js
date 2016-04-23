@@ -162,6 +162,18 @@ $('#event').on('after:hello', function(event, element){
 </div>
 ```
 
+#### 7.自定义pattern
+定义了一个全局FormValidator对象，里面有registerPattern和unRegisterPattern两个方法，支持自定义pattern类型，html中的`data-pattern`被用以识别自定义pattern，属性值为string。自定义方法中传入了当前表单项的值以及当前表单项，例：
+```html
+ <input type="text" data-pattern="userName">
+```
+
+``` javascript
+  FormValidator.registerPattern("userName", function(val, $el){})
+
+  FormValidator.unRegisterPattern("userName")
+```
+
 ## 通用约定和代码规范：
 
 - 以 2-spaces 作为缩进
