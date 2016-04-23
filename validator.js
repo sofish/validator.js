@@ -59,7 +59,7 @@
     number: function(text){
       var min = +this.$item.attr('min')
         , max = +this.$item.attr('max')
-        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d)?$/.test(text)
+        , result = /^\-?(?:[1-9]\d*|0)(?:[.]\d+)?$/.test(text)
         , text = +text
         , step = +this.$item.attr('step');
 
@@ -136,14 +136,23 @@
     // [type=text] 也会进这项
     text: function(text){
 
-      var max = parseInt(this.$item.attr('maxlength'), 10)
-        , noEmpty
+      if(!(text = $.trim(text)).length) return;
 
-      notEmpty = function(text){
-        return !!text.length && !/^\s+$/.test(text)
+      var max = parseInt(this.$item.attr('maxlength'), 10)
+        , min = parseInt(this.$item.attr('minlength'), 10)
+        , range
+
+      range = function () {
+        var ret = true
+          , length = text.length
+
+        if(min) ret = length >= min
+        if(max) ret = ret && (length <= max)
+
+        return ret
       }
 
-      return isNaN(max) ? notEmpty(text) : notEmpty(text) && text.length <= max;
+      return range()
     }
   }
 
@@ -398,7 +407,7 @@
           return errorCallback.call(this, unvalidFields);
         } else {
           if ($._data($form[0], "events").submit.length > 1) e.preventDefault();
-          return after.call(this, e, $items) && true;
+          return after.call(this, e, $items);
         }
       })
     })
