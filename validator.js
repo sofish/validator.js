@@ -198,7 +198,6 @@
 
   // 验证后的返回值
   validateReturn = function($item, klass, parent, message){
-
     if(!$item) return 'DONT VALIDATE UNEXIST ELEMENT';
 
     var pattern, type, val, ret, event
@@ -232,8 +231,13 @@
   }
 
   // 获取待校验的项
-  fields  = function(identifie, form) {
+  fields = function(identifie, form) {
     return $(identifie, form);
+  }
+
+  // 校验校验项是否存在
+  isExist = function($item, $form) {
+    return $form.find($item).length ? true : false;
   }
 
   // 获取待校验项的值
@@ -299,12 +303,14 @@
   }
 
   // 校验表单：表单通过时返回 false，不然返回所有出错的对象
-  validateForm = function ($fields, method, klass, parent) {
+  validateForm = function ($fields, method, klass, parent, $form) {
     if(method && !validateFields.length) return true;
 
     unvalidFields = $.map($fields, function(el){
-      var field = validate.call(null, $(el), klass, parent);
-      if(field) return field;
+      if (isExist(el, $form)) {
+        var field = validate.call(null, $(el), klass, parent);
+        if(field) return field;
+      }
     })
 
     return validateFields.length ? unvalidFields : false;
@@ -396,7 +402,7 @@
       $form.on('submit', function(e){
 
         before.call(this, $items);
-        validateForm.call(this, $items, method, klass, isErrorOnParent);
+        validateForm.call(this, $items, method, klass, isErrorOnParent, $form);
 
         // 当有未通过验证的表单项时阻止其他 submit 事件触发
         // 当有两个或以上的 submit 存在时, 阻止当前 submit 事件的默认行为
