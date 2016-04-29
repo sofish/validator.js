@@ -163,7 +163,7 @@ $('#event').on('after:hello', function(event, element){
 ```
 
 #### 7. 自定义pattern
-定义了一个全局FormValidator对象，里面有registerPattern和unRegisterPattern两个方法，支持自定义pattern类型，html中的`data-pattern`被用以识别自定义pattern，属性值为string。自定义方法中传入了当前表单项的值以及当前表单项，自定义方法应该返回Boolean，例：
+定义了一个全局 `FormValidator` 对象，里面有 `registerPattern` 和 `unRegisterPattern` 两个方法，支持 **自定义pattern**，html中的`data-pattern`被用以识别自定义`pattern`，属性值为`string`。若需要使用 `data-pattern`，则 `$el.attr('pattern')`应为空。自定义方法中传入了当前表单项的值以及当前表单项，自定义方法应该返回Boolean，例：
 ```html
  <input type="text" data-pattern="userName">
 ```
