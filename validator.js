@@ -25,8 +25,8 @@
     // 当前校验的元素，默认没有，在 `validate()` 方法中传入
     // $item: {},
 
-    email: function(text){
-      return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i.test(text);
+    email: function (text) {
+      return /^(?:[a-z0-9]+[_\-+.]+)*[a-z0-9]+@(?:([a-z0-9]+-?)*[a-z0-9]+.)+([a-z]{2,})+$/i.test(text)
     },
 
     // 仅支持 8 种类型的 day
@@ -269,7 +269,7 @@
     // 但通过来说我们更需要的是 checked 的状态
     // 暂时去掉 radio/checkbox/linkage/aorb 的 notEmpty 检测
     if(!(/^(?:radio|checkbox)$/.test(type) || aorb) && !patterns['text'](val)){
-      return !!$item.attr("required") ? validateReturn.call(this, $item, klass, parent, 'empty') : false
+      return validateReturn.call(this, $item, klass, parent, val.length ? 'unvalid' : 'empty')
     }
 
     // 二选一验证：有可能为空
@@ -292,7 +292,7 @@
         // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
         var $items = $(this);
         if (reSpecialType.test(this.type)) {
-          $items = $('input[type=' + this.type + '][name=' + this.name + ']',
+          $items = $('input[type="' + this.type + '"][name="' + this.name + '"]',
                      $items.closest('form'));
         }
         $items.each(function(){
@@ -376,7 +376,7 @@
   $.fn.validator = function(options) {
     var options = options || {}
       , identifier = options.identifier || '[required]'
-      , klass = options.error || 'error'
+      , klass = options.klass || 'error'
       , isErrorOnParent = options.isErrorOnParent || false
       , method = options.method || 'blur'
       , before = options.before || function() {return true;}
