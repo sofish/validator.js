@@ -207,7 +207,7 @@
     type = $item.data('pattern') || $item.attr('type') || 'text';
     // hack ie: 像 select 和 textarea 返回的 type 都为 NODENAME 而非空
     type = patterns[type] ? type : 'text';
-    val = $.trim(getVal($item));
+    val = getVal($item);
     event = $item.data('event');
 
     // HTML5 pattern 支持
