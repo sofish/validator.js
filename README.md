@@ -25,7 +25,7 @@ $('#form_id').validator(options);
 ```js
 options = {
   // 需要校验的表单项，（默认是 `[required]`），支持任何 jQuery 选择器可以选择的标识
-  identifie: {String},
+  identifier: {String},
 
   // 校验不通过时错误时添加的 class 名（默认是 `error`），当校验为空时，还同时拥有 `empty` 这个 classname
   klass: {String},
