@@ -283,30 +283,37 @@
   }
 
   // 校验表单项
-  validateFields = function($fields, method, klass, parent) {
-    // TODO：坐成 delegate 的方式？
-    var reSpecialType = /^radio|checkbox/
-      , field
-    $.each($fields, function(i, f){
-      $(f).on(reSpecialType.test(f.type) || "SELECT" === f.tagName ? 'change blur' : method, function(){
-        // 如果有错误，返回的结果是一个对象，传入 validedFields 可提供更快的 `validateForm`
+  validateFields = function($fields, method, klass, parent, identifier) {
+    // 现在是 delegate 的方式，为了动态地增加校验元素
+    var field
+
+    $(this).on('change blur', 'select,radio,checkbox', function(){
+      var $items = $(this);
+
+      if ($(this).is(identifier)) {
+        $items = $('input[type="' + this.type + '"][name="' + this.name + '"]',
+                  $items.closest('form'));
+      }
+      $items.each(function(){
+        (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
+      });
+    })
+
+    $(this).on(method, identifier, function() {
+      if (!/^select|radio|checkbox/.test($(this).type)) {
         var $items = $(this);
-        if (reSpecialType.test(this.type)) {
-          $items = $('input[type="' + this.type + '"][name="' + this.name + '"]',
-                     $items.closest('form'));
-        }
         $items.each(function(){
           (field = validate.call(this, $(this), klass, parent)) && unvalidFields.push(field);
         });
-      })
+      }
     })
   }
 
   // 校验表单：表单通过时返回 false，不然返回所有出错的对象
-  validateForm = function ($fields, method, klass, parent, $form) {
+  validateForm = function ($fields, method, klass, parent, $form, identifier) {
     if(method && !validateFields.length) return true;
 
-    unvalidFields = $.map($fields, function(el){
+    unvalidFields = $.map(fields(identifier, $form), function(el){
       if (isExist(el, $form)) {
         var field = validate.call(null, $(el), klass, parent);
         if(field) return field;
@@ -374,6 +381,14 @@
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
   $.fn.validator = function(options) {
+
+    if (typeof options === 'string') {
+      switch (options) {
+        case 'fields':
+          return unvalidFields;
+      }
+    }
+
     var options = options || {}
       , identifier = options.identifier || '[required]'
       , klass = options.klass || 'error'
@@ -385,13 +400,15 @@
 
     this.each(function(){
       var $form = $(this)
-        , $items = fields(identifier, $form)
+        , getItems = function() {
+          return fields(identifier, $form)
+        }
 
       // 防止浏览器默认校验
       novalidate($form);
 
       // 表单项校验
-      method && validateFields.call(this, $items, method, klass, isErrorOnParent);
+      method && validateFields.call(this, getItems, method, klass, isErrorOnParent, identifier);
 
       // 当用户聚焦到某个表单时去除错误提示
       $form.on('focusin', identifier, function(e) {
@@ -401,8 +418,8 @@
       // 提交校验
       $form.on('submit', function(e){
 
-        before.call(this, $items);
-        validateForm.call(this, $items, method, klass, isErrorOnParent, $form);
+        before.call(this, getItems());
+        validateForm.call(this, getItems, method, klass, isErrorOnParent, $form, identifier);
 
         // 当有未通过验证的表单项时阻止其他 submit 事件触发
         // 当有两个或以上的 submit 存在时, 阻止当前 submit 事件的默认行为
@@ -413,7 +430,7 @@
           return errorCallback.call(this, unvalidFields);
         } else {
           if ($._data($form[0], "events").submit.length > 1) e.preventDefault();
-          return after.call(this, e, $items);
+          return after.call(this, e, getItems());
         }
       })
     })

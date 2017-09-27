@@ -91,9 +91,17 @@
   <div>
     <div class="editable" contenteditable required pattern="^\d+$">123</div>
   </div>
+  <div class="new-input-area"></div>
+  <p>
+    <button id='js-add-input' type="button">add new input </button>
+  </p>
 
-  <input type="submit" value="send"/>
+
+  <p>
+    <input type="submit" value="send"/>
+  </p>
 </form>
+
 
 <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="validator.js"></script>
@@ -106,6 +114,12 @@
     }
     , isErrorOnParent: true
   });
+
+  var nameIndex = 1;
+
+  $('#js-add-input').on("click", function(){
+    $('.new-input-area').append($('<p>6-20 charsets [input-' + nameIndex + ']: <input type="text" name="new-' + ++nameIndex + '" required pattern="^.{6,20}$"></p>'))
+  })
 
   $('#form').on('submit', function(event){
     event.preventDefault();
