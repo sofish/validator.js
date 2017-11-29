@@ -8,6 +8,7 @@
   var patterns, fields, errorElement, addErrorClass, removeErrorClass, novalidate, validateForm
     , validateFields, radios, removeFromUnvalidFields, asyncValidate, getVal
     , aorbValidate, validateReturn, unvalidFields = []
+    , setupOptions = {}
 
   window.FormValidator = {
     unRegisterPattern: function (name) {
@@ -380,6 +381,15 @@
   //    before: {Function}, // 表单检验之前
   //    after: {Function}, // 表单校验之后，只有返回 True 表单才可能被提交
   //  }
+
+  $.validatorSetup = function(options) {
+    setupOptions.errorCallback = options.errorCallback || null
+    setupOptions.after = options.after || null
+    setupOptions.before = options.before || null
+    setupOptions.isErrorOnParent = options.isErrorOnParent || false
+    setupOptions.method = options.method || 'blur'
+  }
+
   $.fn.validator = function(options) {
 
     if (typeof options === 'string') {
@@ -392,11 +402,11 @@
     var options = options || {}
       , identifier = options.identifier || '[required]'
       , klass = options.klass || 'error'
-      , isErrorOnParent = options.isErrorOnParent || false
-      , method = options.method || 'blur'
-      , before = options.before || function() {return true;}
-      , after = options.after || function() {return true;}
-      , errorCallback = options.errorCallback || function(fields){}
+      , isErrorOnParent = options.isErrorOnParent || setupOptions.isErrorOnParent || false
+      , method = options.method || setupOptions.method || 'blur'
+      , before = options.before || setupOptions.before || function() {return true;}
+      , after = options.after || setupOptions.after || function() {return true;}
+      , errorCallback = options.errorCallback || setupOptions.errorCallback || function(fields){}
 
     this.each(function(){
       var $form = $(this)

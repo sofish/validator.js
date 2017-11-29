@@ -106,13 +106,19 @@
 <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="validator.js"></script>
 <script type="text/javascript">
-  $('#form').validator({
-    errorCallback: function(unvalidFields){
-        $(unvalidFields).each(function(i,item){
-          //console.log(item.$el[0])
-        })
+
+  $.validatorSetup({
+    errorCallback: function(fields){
+      // may not support form in modal
+      if (fields.length) {
+        var top = fields[0].$el.offset().top - 100
+        $('html, body').animate({ scrollTop: top })
+      }
     }
-    , isErrorOnParent: true
+  })
+
+  $('#form').validator({
+    isErrorOnParent: true
   });
 
   var nameIndex = 1;

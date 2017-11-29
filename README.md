@@ -43,6 +43,23 @@ options = {
   after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
  }
 ```
+全局配置，类似$.ajaxSetup，可以把一些共用配置抽出来，不用每次单独写，比如 errorCallback。setup 放在 validator 实例化之前。
+
+```js
+$.validatorSetup({
+  // 错误出现时 `klass` 放在当前表单项还是父节点（默认是当前表单项）
+  isErrorOnParent: {Boolean},
+
+  // 触发表单项校验的方法，当是 false 在点 submit 按钮之前不校验（默认是 `blur`）
+  method: {String | false},
+
+  // 出错时的 callback，第一个参数是所有出错表单项集合
+  errorCallback(unvalidFields): {Function},
+
+  before: {Function}, // 表单检验之前
+  after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
+})
+```
 
 ### 二、验证表单
 ```js
