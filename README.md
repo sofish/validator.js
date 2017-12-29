@@ -41,6 +41,7 @@ options = {
 
   before: {Function}, // 表单检验之前
   after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
+  allowReturn: {Boolean | true} // 是否禁用表单回车提交，false 禁用
  }
 ```
 全局配置，类似$.ajaxSetup，可以把一些共用配置抽出来，不用每次单独写，比如 errorCallback。setup 放在 validator 实例化之前。
@@ -58,6 +59,7 @@ $.validatorSetup({
 
   before: {Function}, // 表单检验之前
   after: {Function}, // 表单校验之后，只有 __return true__ 才会提交表单
+  allowReturn: {Boolean | true} // 是否禁用表单回车提交，false 禁用
 })
 ```
 

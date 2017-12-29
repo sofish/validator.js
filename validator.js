@@ -370,6 +370,13 @@
     return $form.attr('novalidate') || $form.attr('novalidate', 'true')
   }
 
+  // 禁用 return，防止回车触发 submit
+  noreturn = function($form){
+    $form.on("keydown", function (e) {
+      if (e.keyCode === 13) return false;
+    })
+  }
+
   // 用法：$form.validator(options)
   // 参数：options = {
   //    identifier: {String}, // 需要校验的表单项，（默认是 `[required]`）
@@ -388,6 +395,7 @@
     setupOptions.before = options.before || null
     setupOptions.isErrorOnParent = options.isErrorOnParent || false
     setupOptions.method = options.method || 'blur'
+    setupOptions.allowReturn = options.allowReturn || true
   }
 
   $.fn.validator = function(options) {
@@ -407,12 +415,17 @@
       , before = options.before || setupOptions.before || function() {return true;}
       , after = options.after || setupOptions.after || function() {return true;}
       , errorCallback = options.errorCallback || setupOptions.errorCallback || function(fields){}
+      , allowReturn =  options.allowReturn || true
 
     this.each(function(){
       var $form = $(this)
         , getItems = function() {
           return fields(identifier, $form)
         }
+
+      if (!allowReturn) {
+        noreturn($form)
+      }
 
       // 防止浏览器默认校验
       novalidate($form);
