@@ -415,7 +415,9 @@
       , before = options.before || setupOptions.before || function() {return true;}
       , after = options.after || setupOptions.after || function() {return true;}
       , errorCallback = options.errorCallback || setupOptions.errorCallback || function(fields){}
-      , allowReturn =  options.allowReturn || true
+      , allowReturn = options.allowReturn === undefined ?
+                        setupOptions.allowReturn === undefined ? true : setupOptions.allowReturn
+                      : options.allowReturn
 
     this.each(function(){
       var $form = $(this)
