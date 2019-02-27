@@ -394,7 +394,7 @@
     setupOptions.after = options.after || null
     setupOptions.before = options.before || null
     setupOptions.isErrorOnParent = options.isErrorOnParent || false
-    setupOptions.method = options.method || 'blur'
+    setupOptions.method = options.method === false ? false : 'blur'
     setupOptions.allowReturn = options.allowReturn || true
   }
 
@@ -411,7 +411,7 @@
       , identifier = options.identifier || '[required]'
       , klass = options.klass || 'error'
       , isErrorOnParent = options.isErrorOnParent || setupOptions.isErrorOnParent || false
-      , method = options.method || setupOptions.method || 'blur'
+      , method = options.method === false ? false : options.method || (setupOptions.method === false ? false : setupOptions.method || 'blur')
       , before = options.before || setupOptions.before || function() {return true;}
       , after = options.after || setupOptions.after || function() {return true;}
       , errorCallback = options.errorCallback || setupOptions.errorCallback || function(fields){}
